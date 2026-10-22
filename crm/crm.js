@@ -446,7 +446,7 @@ VIEWS.klientai = () => {
       h("td", { class: "r hide-s" }, c.docs.length || "—"),
       h("td", { class: "muted nowrap hide-s" }, c.updated ? ago(c.updated) : ""))));
     const total = f.reduce((s, c) => s + c.price, 0);
-    sum.textContent = `Rodoma ${plural(f.length, "klientas", "klientai", "klientų")}` + (total ? ` · kainų suma ${eur(total)}` : "");
+    sum.textContent = `Rodoma ${plural(f.length, "klientas", "klientai", "klientų")}` + (total ? ` · sutartų kainų suma ${eur(total)}` : "");
   };
   const search = h("input", { type: "search", class: "inp", placeholder: "Vardas, telefonas, el. paštas ar butas", value: CF.q, "aria-label": "Paieška" });
   search.oninput = () => { CF.q = search.value; draw(); };
@@ -462,15 +462,15 @@ VIEWS.klientai = () => {
   return [
     head("Klientai", "Pirkėjai ir potencialūs pirkėjai. Spauskite eilutę, kad atidarytumėte kortelę.",
       h("button", { class: "btn ghost", type: "button", onclick: pickInqToImport }, "Importuoti iš užklausos"),
-      h("button", { class: "btn ghost", type: "button", onclick: () => csv(`klientai-${today()}.csv`, ["Vardas Pavardė", "Telefonas", "El. paštas", "Butas", "Statusas", "Kaina €", "Komentaras", "Dokumentų", "Atnaujinta", "Keitė"], rows()) }, "CSV"),
+      h("button", { class: "btn ghost", type: "button", onclick: () => csv(`klientai-${today()}.csv`, ["Vardas Pavardė", "Telefonas", "El. paštas", "Butas", "Statusas", "Sutarta kaina €", "Komentaras", "Dokumentų", "Atnaujinta", "Keitė"], rows()) }, "CSV"),
       h("button", { class: "btn ghost", type: "button", onclick: () => printSheet("Du Aidai – klientai", `Sudaryta ${dt(new Date())}` + (CF.st ? " · statusas: " + CF.st : "") + ((CF.min || CF.max) ? ` · kaina ${CF.min || 0}–${CF.max || "∞"} €` : ""),
-        ["Klientas", "Telefonas", "El. paštas", "Butas", "Statusas", "Kaina", "Komentaras"], filtered().map(c => [fullName(c), c.phone, c.email, aptNo(c.apt), c.status, eur(c.price), c.comment.slice(0, 160)])) }, "PDF"),
+        ["Klientas", "Telefonas", "El. paštas", "Butas", "Statusas", "Sutarta kaina", "Komentaras"], filtered().map(c => [fullName(c), c.phone, c.email, aptNo(c.apt), c.status, eur(c.price), c.comment.slice(0, 160)])) }, "PDF"),
       h("a", { class: "btn", href: "#klientas/naujas" }, "+ Naujas klientas")),
     h("section", { class: "card filter-card" },
-      h("div", { class: "filters" }, search, aptSel, h("div", { class: "range" }, h("span", { class: "muted" }, "Kaina"), mk("min", "nuo €"), "–", mk("max", "iki €")), sortSel),
+      h("div", { class: "filters" }, search, aptSel, h("div", { class: "range" }, h("span", { class: "muted" }, "Sutarta kaina"), mk("min", "nuo €"), "–", mk("max", "iki €")), sortSel),
       h("div", { class: "filters", style: { marginTop: "12px" } }, chips)),
     card(null,
-      h("div", { class: "tbl-wrap" }, h("table", { class: "tbl" }, h("thead", {}, h("tr", {}, h("th", {}, "Klientas"), h("th", {}, "Telefonas"), h("th", {}, "Butas"), h("th", {}, "Statusas"), h("th", { class: "r" }, "Kaina"), h("th", { class: "r hide-s" }, "Dok."), h("th", { class: "hide-s" }, "Atnaujinta"))), tb)), sum),
+      h("div", { class: "tbl-wrap" }, h("table", { class: "tbl" }, h("thead", {}, h("tr", {}, h("th", {}, "Klientas"), h("th", {}, "Telefonas"), h("th", {}, "Butas"), h("th", {}, "Statusas"), h("th", { class: "r" }, "Sutarta kaina"), h("th", { class: "r hide-s" }, "Dok."), h("th", { class: "hide-s" }, "Atnaujinta"))), tb)), sum),
   ];
 };
 async function pickInqToImport() {
@@ -523,7 +523,7 @@ VIEWS.klientas = (id) => {
           fld("Vardas", inputFor(c, "first", { on: mark })), fld("Pavardė", inputFor(c, "last", { on: mark })),
           fld("El. paštas", inputFor(c, "email", { type: "email", on: mark })), fld("Telefono numeris", inputFor(c, "phone", { type: "tel", ph: "+370", on: mark })),
           fld("Butas", aptSel, { hint: "" }), fld("Statusas", stSel),
-          fld("Kaina", priceIn, { suffix: "€" }), h("div", { class: "f" }, h("span", {}, "Buto būsena"), aptHint),
+          fld("Su klientu sutarta kaina", priceIn, { suffix: "€" }), h("div", { class: "f" }, h("span", {}, "Buto būsena"), aptHint),
           fld("Komentaras", inputFor(c, "comment", { area: true, rows: 5, on: mark }), { wide: true })),
           h("div", { class: "row-acts mt" }, h("button", { class: "btn", type: "button", onclick: save }, isNew ? "Sukurti klientą" : "Išsaugoti"), h("span", { class: "muted", style: { fontSize: "12.5px" } }, "Ctrl + S"))),
         isNew ? null : docsCard(orig)),
