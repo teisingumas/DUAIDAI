@@ -3,7 +3,7 @@
    Duomenys laikomi aplanke šalia public_html (../duaidai-data), o jei ten rašyti negalima – _data/ (uždaryta .htaccess). */
 declare(strict_types=1);
 
-const DA_V = '20261022a';            /* CSS/JS versija (naršyklės podėlio atnaujinimui) */
+const DA_V = '20261022b';            /* CSS/JS versija (naršyklės podėlio atnaujinimui) */
 define('DA_ROOT', dirname(__DIR__));
 define('DA_DATA', (function (): string {
     $out = dirname(DA_ROOT) . '/duaidai-data';
