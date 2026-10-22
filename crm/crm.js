@@ -163,7 +163,7 @@ function aptOptions(sel, cur) {
 /* ---------- maršrutai ---------- */
 let route = "", arg = "";
 const NAV = () => [
-  ["CRM", [["apzvalga", "Apžvalga", I.home], ["uzklausos", "Užklausos", I.inbox, newCount()], ["klientai", "Klientai", I.user], ["butai", "Butai", I.bld], ["analitika", "Analitika", I.chart]]],
+  ["CRM", [["apzvalga", "Apžvalga", I.home], ["analitika", "Analitika", I.chart], ["uzklausos", "Užklausos", I.inbox, newCount()], ["butai", "Butai", I.bld], ["klientai", "Klientai", I.user]]],
   ["Sistema", [["nustatymai", "Nustatymai", I.gear], ["zurnalas", "Žurnalas", I.list], ["paskyros", "Paskyros", I.key], ["mano", "Mano paskyra", I.user]]],
 ];
 const ALIAS = { butas: "butai", klientas: "klientai" };
@@ -204,7 +204,24 @@ addEventListener("hashchange", async () => {
   }
   lastHash = location.hash; render();
 });
-$("#menuBtn").onclick = () => { const o = document.body.classList.toggle("nav-open"); $("#menuBtn").setAttribute("aria-expanded", o); };
+/* meniu: telefone išsiskleidžia virš turinio, kompiuteryje paslepiamas / parodomas (prisimenama) */
+const mobile = () => matchMedia("(max-width:860px)").matches;
+try { if (localStorage.getItem("daSideHidden") === "1") document.body.classList.add("side-hidden"); } catch (e) {}
+$("#menuBtn").onclick = () => {
+  if (mobile()) { const o = document.body.classList.toggle("nav-open"); $("#menuBtn").setAttribute("aria-expanded", o); return; }
+  const hidden = document.body.classList.toggle("side-hidden");
+  $("#menuBtn").setAttribute("aria-label", hidden ? "Rodyti meniu" : "Slėpti meniu");
+  try { localStorage.setItem("daSideHidden", hidden ? "1" : "0"); } catch (e) {}
+};
+/* sąrašo filtrų grupė su pavadinimu (Namas, Būsena) */
+const fgroup = (label, ...chips) => h("div", { class: "fgroup" }, h("span", { class: "flbl" }, label), h("div", { class: "chips" }, ...chips));
+/* filtras iš adreso, pvz. #butai?st=Rezervuotas – pritaikomas vieną kartą, adresas išvalomas */
+function takeQuery(base) {
+  const qs = new URLSearchParams(location.hash.split("?")[1] || "");
+  if (![...qs.keys()].length) return null;
+  lastHash = "#" + base; history.replaceState(null, "", lastHash);
+  return qs;
+}
 
 const VIEWS = {};
 
@@ -225,8 +242,8 @@ function kpiTiles() {
   const c = statusCounts(S.apts), n = newCount();
   const sum = (l, k) => l.reduce((s, a) => s + (a[k] || 0), 0);
   return h("div", { class: "kpis" },
-    h("a", { class: "kpi" + (n ? " alert" : ""), href: "#uzklausos" }, h("div", { class: "k" }, "Naujos užklausos"), h("div", { class: "v" }, n), h("div", { class: "s" }, n ? "Laukia atsakymo →" : "Visos peržiūrėtos")),
-    ...APT_ST.map(s => h("a", { class: "kpi", href: "#butai" }, h("div", { class: "k" }, h("i", { style: { background: ST_COLOR[s] } }), s === "Laisvas" ? "Laisvi" : s === "Rezervuotas" ? "Rezervuoti" : "Parduoti"),
+    h("a", { class: "kpi" + (n ? " alert" : ""), href: "#uzklausos?st=nauja" }, h("div", { class: "k" }, "Naujos užklausos"), h("div", { class: "v" }, n), h("div", { class: "s" }, n ? "Laukia atsakymo →" : "Visos peržiūrėtos")),
+    ...APT_ST.map(s => h("a", { class: "kpi", href: "#butai?st=" + encodeURIComponent(s) }, h("div", { class: "k" }, h("i", { style: { background: ST_COLOR[s] } }), s === "Laisvas" ? "Laisvi" : s === "Rezervuotas" ? "Rezervuoti" : "Parduoti"),
       h("div", { class: "v" }, c[s].length), h("div", { class: "s" }, m2(sum(c[s], "area")) + (s !== "Rezervuotas" ? " · " + eur(sum(c[s], "price")) : "")))));
 }
 VIEWS.apzvalga = () => {
@@ -265,8 +282,8 @@ function quickTable(onChange) {
   const draw = () => {
     box.innerHTML = "";
     const chips = h("div", { class: "filters" },
-      h("div", { class: "chips" }, ...[["", "Visi namai"], ...S.houses.map(x => [x.id, x.name])].map(([v, l]) => h("button", { type: "button", class: "chip" + (QF.house === v ? " on" : ""), onclick: () => { QF.house = v; draw(); } }, l))),
-      h("div", { class: "chips" }, ...[["", "Visos būsenos"], ...APT_ST.map(s => [s, s])].map(([v, l]) => h("button", { type: "button", class: "chip" + (QF.st === v ? " on" : ""), onclick: () => { QF.st = v; draw(); } }, l))));
+      fgroup("Namas", ...[["", "Visi"], ...S.houses.map(x => [x.id, x.id])].map(([v, l]) => h("button", { type: "button", class: "chip" + (QF.house === v ? " on" : ""), onclick: () => { QF.house = v; draw(); } }, l))),
+      fgroup("Būsena", ...[["", "Visos"], ...APT_ST.map(s => [s, s])].map(([v, l]) => h("button", { type: "button", class: "chip" + (QF.st === v ? " on" : ""), onclick: () => { QF.st = v; draw(); } }, l, v ? h("b", {}, S.apts.filter(a => a.status === v && (!QF.house || a.house === QF.house)).length) : null))));
     const tb = h("tbody");
     const counts = Object.fromEntries(aptInqCounts());
     S.houses.filter(x => !QF.house || x.id === QF.house).forEach(hs => hs.floors.forEach(f => {
@@ -316,8 +333,8 @@ function quickTable(onChange) {
 let IF = { q: "", apt: "", st: "" , limit: 40 };
 VIEWS.uzklausos = (a) => {
   /* #uzklausos/<id> – viena užklausa; #uzklausos?butas=A501 – filtras */
-  const qs = new URLSearchParams(location.hash.split("?")[1] || "");
-  if (qs.get("butas") != null) { IF.apt = qs.get("butas"); IF.st = ""; IF.q = ""; lastHash = "#uzklausos"; history.replaceState(null, "", lastHash); }
+  const qs = takeQuery("uzklausos");
+  if (qs) { IF.apt = qs.get("butas") ?? ""; IF.st = qs.get("st") ?? ""; IF.q = ""; }
   const only = a || "";
   const list = h("div");
   const counts = Object.fromEntries(INQ_ST.map(([k]) => [k, S.inqs.filter(q => q.status === k).length]));
@@ -569,6 +586,8 @@ function docsCard(cl) {
    ===================================================================== */
 let BF = { house: "", st: "" };
 VIEWS.butai = () => {
+  const qs = takeQuery("butai");
+  if (qs) { BF.st = APT_ST.includes(qs.get("st")) ? qs.get("st") : ""; BF.house = ""; }
   const box = h("div");
   S.houses.filter(x => !BF.house || x.id === BF.house).forEach(hs => {
     const all = S.apts.filter(a => a.house === hs.id), c = statusCounts(all);
@@ -588,8 +607,8 @@ VIEWS.butai = () => {
   return [
     head("Butai", "Butai suskirstyti pagal namą ir aukštą. Spauskite butą – keisite plotus, patalpas, kainą ir planą."),
     h("div", { class: "filters" },
-      h("div", { class: "chips" }, ...[["", "Visi namai"], ...S.houses.map(x => [x.id, x.name])].map(([v, l]) => h("button", { type: "button", class: "chip" + (BF.house === v ? " on" : ""), onclick: () => { BF.house = v; render(true); } }, l))),
-      h("div", { class: "chips" }, ...[["", "Visos būsenos"], ...APT_ST.map(s => [s, s])].map(([v, l]) => h("button", { type: "button", class: "chip" + (BF.st === v ? " on" : ""), onclick: () => { BF.st = v; render(true); } }, l, v ? h("b", {}, S.apts.filter(a => a.status === v).length) : null)))),
+      fgroup("Namas", ...[["", "Visi"], ...S.houses.map(x => [x.id, x.id])].map(([v, l]) => h("button", { type: "button", class: "chip" + (BF.house === v ? " on" : ""), onclick: () => { BF.house = v; render(true); } }, l))),
+      fgroup("Būsena", ...[["", "Visos"], ...APT_ST.map(s => [s, s])].map(([v, l]) => h("button", { type: "button", class: "chip" + (BF.st === v ? " on" : ""), onclick: () => { BF.st = v; render(true); } }, l, v ? h("b", {}, S.apts.filter(a => a.status === v && (!BF.house || a.house === BF.house)).length) : null)))),
     box,
   ];
 };
@@ -715,7 +734,7 @@ VIEWS.analitika = () => {
   return [
     head("Analitika", "Pardavimai, užklausos ir lankomumas."),
     h("div", { class: "kpis" },
-      ...APT_ST.map(s => h("div", { class: "kpi" }, h("div", { class: "k" }, h("i", { style: { background: ST_COLOR[s] } }), s === "Laisvas" ? "Laisva" : s === "Rezervuotas" ? "Rezervuota" : "Parduota"),
+      ...APT_ST.map(s => h("a", { class: "kpi", href: "#butai?st=" + encodeURIComponent(s) }, h("div", { class: "k" }, h("i", { style: { background: ST_COLOR[s] } }), s === "Laisvas" ? "Laisva" : s === "Rezervuotas" ? "Rezervuota" : "Parduota"),
         h("div", { class: "v" }, c[s].length, h("span", { style: { fontSize: "15px", color: "var(--ink-3)", fontWeight: 700 } }, ` / ${total}`)), h("div", { class: "s" }, `${total ? Math.round(c[s].length / total * 100) : 0} % · ${m2(sum(c[s], "area"))}`))),
       h("div", { class: "kpi" }, h("div", { class: "k" }, "Parduota už"), h("div", { class: "v" }, eur(sum(c.Parduotas, "price"))), h("div", { class: "s" }, "Laisvų vertė " + eur(freeVal))),
       h("div", { class: "kpi" }, h("div", { class: "k" }, "Laisvų vid. €/m²"), h("div", { class: "v" }, freeArea ? nf0.format(freeVal / freeArea) + " €" : "—"), h("div", { class: "s" }, "pagal nurodytas kainas")),

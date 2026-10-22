@@ -52,7 +52,7 @@ body.auth{min-height:100vh;display:grid;place-items:center;padding:24px 16px;bac
 
 /* ---------- rėmas ---------- */
 .top{position:fixed;inset:0 0 auto 0;height:var(--top);background:var(--paper);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:18px;padding:0 20px;z-index:20}
-.top-logo{display:flex;align-items:center;gap:10px;width:calc(var(--side) - 20px);text-decoration:none;color:var(--ink);flex:none}
+.top-logo{display:flex;align-items:center;gap:10px;width:calc(var(--side) - 70px);text-decoration:none;color:var(--ink);flex:none}
 .top-logo svg{width:26px;height:auto;fill:var(--accent)}
 .top-logo b{font-size:16px}
 .top-logo small{font-size:10px;font-weight:800;letter-spacing:.18em;color:#fff;background:var(--accent);padding:3px 7px;border-radius:999px}
@@ -67,7 +67,8 @@ body.auth{min-height:100vh;display:grid;place-items:center;padding:24px 16px;bac
 .search-res h5{margin:8px 12px 4px;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3)}
 .search-res p{margin:10px 12px;color:var(--ink-3)}
 .top-site{margin-left:auto}
-.menu-btn{display:none;width:40px;height:40px;border:0;background:none;position:relative;cursor:pointer;flex:none}
+.menu-btn{display:block;width:40px;height:40px;border:0;background:none;position:relative;cursor:pointer;flex:none;border-radius:8px;margin-left:-8px}
+.menu-btn:hover{background:var(--soft)}
 .menu-btn span{position:absolute;left:10px;right:10px;height:2px;background:var(--ink);transition:transform .2s;border-radius:2px}
 .menu-btn span:first-child{top:15px}.menu-btn span:last-child{top:23px}
 .side{position:fixed;top:var(--top);bottom:0;left:0;width:var(--side);background:var(--paper);border-right:1px solid var(--line);overflow:auto;padding:14px 12px 24px;z-index:15}
@@ -83,6 +84,16 @@ body.auth{min-height:100vh;display:grid;place-items:center;padding:24px 16px;bac
 .side .out button{display:block;width:100%;text-align:left;padding:9px 12px;border:0;background:none;cursor:pointer;color:var(--ink-2);font-size:14px;border-radius:9px}
 .side .out button:hover{color:var(--bad);background:var(--bad-bg)}
 .main{margin:var(--top) 0 0 var(--side);padding:28px 36px 120px;max-width:calc(var(--side) + 1240px)}
+/* paslėptas meniu (kompiuteryje) */
+@media (min-width:861px){
+  .side,.main{transition:transform .25s,margin .25s}
+  body.side-hidden .side{transform:translateX(-100%)}
+  body.side-hidden .main{margin-left:auto;margin-right:auto;max-width:1312px}
+}
+/* filtrų grupės: Namas | Būsena */
+.fgroup{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.fgroup + .fgroup{margin-left:14px;padding-left:24px;border-left:1px solid var(--line-2)}
+.flbl{font-size:10.5px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)}
 .loading{color:var(--ink-3)}
 .page-h{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin:0 0 20px;flex-wrap:wrap}
 .page-h h1{font:800 28px/1.15 var(--font);margin:0;letter-spacing:-.01em}
@@ -324,7 +335,6 @@ dialog.dlg .acts{display:flex;justify-content:flex-end;gap:10px;margin-top:20px;
 }
 @media (max-width:860px){
   :root{--top:58px}
-  .menu-btn{display:block}
   .top{gap:8px;padding:0 10px}
   .top-logo{width:auto}
   .top-logo b,.top-site{display:none}
@@ -345,6 +355,8 @@ dialog.dlg .acts{display:flex;justify-content:flex-end;gap:10px;margin-top:20px;
   .hist > div{flex-wrap:wrap}
   .hist > div time{width:auto}
   .filters input[type=search]{max-width:none;min-width:100%}
+  .fgroup + .fgroup{margin-left:0;padding-left:0;border-left:0}
+  .fgroup{width:100%}
   .hide-s{display:none}
   .bar{grid-template-columns:76px minmax(0,1fr) 36px}
 }
