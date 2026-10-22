@@ -170,7 +170,7 @@ function da_mail(string $to, string $subject, string $body): bool
 
 /* nuorodoms laiškuose naudojamas tik leidžiamas domenas (apsauga nuo suklastotos Host antraštės).
    Perkeliant į kliento domeną – įrašykite jį į DA_HOSTS. */
-const DA_HOSTS = ['cornflowerblue-bison-370650.hostingersite.com', 'duaidai.lt', 'www.duaidai.lt', '127.0.0.1:8813'];
+const DA_HOSTS = ['cornflowerblue-bison-370650.hostingersite.com', 'deepskyblue-jellyfish-482446.hostingersite.com', 'duaidai.lt', 'www.duaidai.lt', '127.0.0.1:8813'];
 function da_local(): bool { return strtolower((string)($_SERVER['HTTP_HOST'] ?? '')) === '127.0.0.1:8813'; }
 function da_base_url(): string
 {
