@@ -8,7 +8,7 @@
 /* Layout: one fixed transparent header over four full-screen views (hero → building picker → floor plan → apartment). Single deliberate light look over photography. */
 :root{
   --accent:#1f4d3a; --accent-hi:#2b6a50; --ink:#17201b; --muted:#5e6862; --paper:#eef0ec; --surface:#ffffff; --line:#dfe3df;
-  --free:#2a7a4b; --free-ink:#1e5a37; --res:#d08a1e; --res-ink:#7a4a08; --res-block:#a8681a; --white:#ffffff;
+  --free:#2a7a4b; --free-ink:#1e5a37; --res:#d08a1e; --res-ink:#7a4a08; --res-block:#a8681a; --sold:#6b746f; --sold-ink:#2f3833; --white:#ffffff;
   --font:"Manrope", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --hdr:76px;
 }
@@ -141,12 +141,13 @@ a.chip:hover, button.chip:hover{background:rgba(18,24,21,.88)}
 .tip-st div{display:flex;flex-direction:column;line-height:1.1}
 .tip-st b{font-size:24px;font-weight:800}
 .tip-st span{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
-.c-free{color:var(--free-ink)} .c-res{color:var(--res-ink)}
+.c-free{color:var(--free-ink)} .c-res{color:var(--res-ink)} .c-sold{color:var(--sold-ink)}
 .tip-bar{display:flex;gap:2px;height:6px;border-radius:3px;overflow:hidden}
-.tip-bar i{display:block;background:var(--free)} .tip-bar i+i{background:var(--res)}
+.tip-bar i{display:block;background:var(--free)} .tip-bar i+i{background:var(--res)} .tip-bar i.s{background:var(--sold)}
 .tip-stat{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:700}
 .dot{width:7px;height:7px;border-radius:50%;background:var(--free);flex:none}
 .dot.r{background:var(--res)}
+.dot.s{background:var(--sold)}
 
 /* floor + apartment pages */
 .page{min-height:100svh;padding-top:calc(var(--hdr) + env(safe-area-inset-top,0px) + 8px);padding-bottom:calc(40px + env(safe-area-inset-bottom,0px));
@@ -166,6 +167,7 @@ h1{margin:6px 0 0;font-size:clamp(30px,3.2vw,44px);font-weight:800;letter-spacin
 .legend span{display:flex;align-items:center;gap:8px}
 .sw{width:14px;height:14px;border-radius:3px;border:1px solid var(--line);background:var(--surface)}
 .sw.r{background:rgba(208,138,30,.35);border-color:var(--res)}
+.sw.s{background:rgba(94,104,98,.35);border-color:var(--sold)}
 .alist{display:grid;border-top:1px solid var(--line)}
 .alist a{display:grid;grid-template-columns:62px 1fr auto;gap:10px;align-items:center;padding:11px 4px;border-bottom:1px solid var(--line);text-decoration:none;font-size:14px;font-variant-numeric:tabular-nums}
 .alist a:hover, .alist a.hl{background:var(--surface)}
@@ -182,6 +184,9 @@ h1{margin:6px 0 0;font-size:clamp(30px,3.2vw,44px);font-weight:800;letter-spacin
 .ap text{font-family:var(--font);font-size:22px;font-weight:800;fill:var(--white);text-anchor:middle;dominant-baseline:central;pointer-events:none}
 .ap rect{fill:var(--accent);pointer-events:none}
 .ap.res rect{fill:var(--res-block)}
+.ap.sold path{fill:rgba(94,104,98,.30);stroke:rgba(94,104,98,.55)}
+.ap.sold:hover path, .ap.sold:focus path, .ap.sold.hl path{fill:rgba(94,104,98,.45);stroke:var(--sold)}
+.ap.sold rect{fill:var(--sold)}
 
 /* apartment */
 .apt .wrap{grid-template-columns:minmax(0,1fr) 380px}
@@ -211,6 +216,7 @@ h1{margin:6px 0 0;font-size:clamp(30px,3.2vw,44px);font-weight:800;letter-spacin
 }
 .status{display:inline-flex;align-items:center;gap:8px;height:32px;padding:0 14px;border-radius:999px;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;background:#eaf3ee;color:var(--free-ink);width:max-content}
 .status.r{background:#fbf1e2;color:var(--res-ink)}
+.status.s{background:#e9ece9;color:var(--sold-ink)}
 .specs{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--line);border-left:1px solid var(--line)}
 .specs div{padding:14px 16px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);display:grid;gap:4px;background:var(--surface)}
 .specs span{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
@@ -315,6 +321,8 @@ table.rooms tr.tot td{border-bottom:0;font-weight:800;padding-top:12px}
 .fld input:focus,.fld textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(31,77,58,.15)}
 .fld input[aria-invalid="true"]{border-color:#b4442e}
 .ferr{margin:0;font-size:13px;color:#a03b27;font-weight:600}
+.fnote{margin:0;font-size:12px;color:var(--muted);text-align:center}
+.hp{position:absolute!important;left:-9999px;width:1px;height:1px;overflow:hidden}
 .broker{display:flex;align-items:center;gap:14px;padding:16px 34px;background:var(--surface);border-top:1px solid var(--line)}
 .broker img{width:64px;height:64px;border-radius:50%;object-fit:cover;flex:none;background:#1c2530}
 .broker span{display:block;font-size:12px;color:var(--muted);line-height:1.4}
@@ -455,7 +463,7 @@ table.rooms tr.tot td{border-bottom:0;font-weight:800;padding-top:12px}
       <div class="fl-ttl"><div class="eyebrow" id="flEyebrow">Namas A</div><h1 id="flTitle">5 aukštas</h1></div>
       <div class="seg"><div class="eyebrow">Namas</div><div class="seg-row" id="segB"></div></div>
       <div class="seg"><div class="eyebrow">Aukštas</div><div class="seg-row" id="segF"></div></div>
-      <div class="legend"><span><i class="sw"></i>Laisvas</span><span><i class="sw r"></i>Rezervuotas</span></div>
+      <div class="legend"><span><i class="sw"></i>Laisvas</span><span><i class="sw r"></i>Rezervuotas</span><span><i class="sw s"></i>Parduotas</span></div>
       <div class="fl-back"><a class="back-cta" href="#rinkis">← Visi namai</a></div>
     </div>
     <div class="fl-body">
@@ -503,8 +511,10 @@ table.rooms tr.tot td{border-bottom:0;font-weight:800;padding-top:12px}
         </div>
         <label class="fld" for="fEmail"><span>El. paštas</span><input id="fEmail" name="el_pastas" type="email" autocomplete="email" required></label>
         <label class="fld" for="fMsg"><span>Komentaras</span><textarea id="fMsg" name="komentaras" rows="3"></textarea></label>
+        <div class="hp" aria-hidden="true"><label>Svetainė<input name="svetaine" id="fHp" type="text" tabindex="-1" autocomplete="off"></label></div>
         <p class="ferr" id="fErr" hidden></p>
-        <button class="btn" type="submit">Siųsti užklausą</button>
+        <button class="btn" type="submit" id="fSend">Siųsti užklausą</button>
+        <p class="fnote">Jūsų duomenis naudosime tik atsakyti į šią užklausą.</p>
       </form>
     </div>
     <div id="mDone" hidden class="mdone">
@@ -558,29 +568,42 @@ BUILDINGS.forEach(b=>FLOORS.forEach(f=>{ // kiekviename aukšte bent 1 rezervuot
   if(l.every(a=>a.res)) l[l.length-1].res=false;
 }));
 const all=Object.values(APTS);
-$("hfApts").textContent=all.length; $("hfFree").textContent=all.filter(a=>!a.res).length;
+/* būsena: laisvas / rezervuotas (res) / parduotas (sold) */
+const isFree=a=>!a.res&&!a.sold;
+const stCls=a=>a.sold?" s":a.res?" r":"";
+const stDot=a=>'<i class="dot'+stCls(a)+'"></i>';
+const stName=a=>a.sold?"Parduotas":a.res?"Rezervuotas":"Laisvas";
+/* tikri duomenys iš CRM (api/butai.php); atidarius failą be serverio lieka pavyzdiniai duomenys aukščiau */
+function applyCrm(list){
+  list.forEach(x=>{ const a=APTS[x.id]; if(!a) return;
+    a.res=x.status==="Rezervuotas"; a.sold=x.status==="Parduotas"; a.price=x.price||0; a.area=x.area; a.plan=x.plan||"";
+    a.t={k:x.rooms,bal:x.balcony,r:x.premises.map(p=>[p.name,p.area])};
+  });
+}
+function renderCounts(){ $("hfApts").textContent=all.length; $("hfFree").textContent=all.filter(isFree).length; }
+renderCounts();
 
 /* ---------- tooltip ---------- */
 const tip=$("tip");
 function floorTip(b,f){
-  const a=floorApts(b,f), r=a.filter(x=>x.res).length, fr=a.length-r;
+  const a=floorApts(b,f), r=a.filter(x=>x.res).length, sd=a.filter(x=>x.sold).length, fr=a.length-r-sd;
   tip.className="tip";
   tip.innerHTML=`<div class="tip-n"><b>${f}</b><span>aukštas</span></div><div class="tip-b"><span class="tip-sub">Namas ${b} · Du Aidai</span>
-  <div class="tip-st"><div><b class="c-free">${fr}</b><span>Laisvi</span></div><div><b class="c-res">${r}</b><span>Rezervuoti</span></div></div>
-  <div class="tip-bar"><i style="flex:${fr}"></i><i style="flex:${r}"></i></div></div>`;
+  <div class="tip-st"><div><b class="c-free">${fr}</b><span>Laisvi</span></div><div><b class="c-res">${r}</b><span>Rezervuoti</span></div>${sd?`<div><b class="c-sold">${sd}</b><span>Parduoti</span></div>`:""}</div>
+  <div class="tip-bar"><i style="flex:${fr}"></i><i style="flex:${r}"></i><i class="s" style="flex:${sd}"></i></div></div>`;
 }
 function aptTip(a){
-  tip.className="tip"+(a.res?" res":"");
+  tip.className="tip"+(a.res||a.sold?" res":"");
   tip.innerHTML=`<div class="tip-n sm"><b>${a.f}${a.pos}</b><span>butas</span></div><div class="tip-b"><span class="tip-sub">Namas ${a.b} · ${a.f} aukštas</span>
   <div class="tip-st"><div><b>${a.t.k}</b><span>Kambariai</span></div><div><b>${fmtN(a.area)}<sup class="u">m²</sup></b><span>Plotas</span></div></div>
-  <div class="tip-stat">${a.res?'<i class="dot r"></i><span class="c-res">Rezervuotas</span>':'<i class="dot"></i><span class="c-free">Laisvas</span><span style="margin-left:auto">'+fmtP(a.price)+'</span>'}</div></div>`;
+  <div class="tip-stat">${a.sold?'<i class="dot s"></i><span class="c-sold">Parduotas</span>':a.res?'<i class="dot r"></i><span class="c-res">Rezervuotas</span>':'<i class="dot"></i><span class="c-free">Laisvas</span><span style="margin-left:auto">'+(a.price?fmtP(a.price):'')+'</span>'}</div></div>`;
 }
 function bldgTip(b){
-  const a=all.filter(x=>x.b===b), r=a.filter(x=>x.res).length, fr=a.length-r;
+  const a=all.filter(x=>x.b===b), r=a.filter(x=>x.res).length, sd=a.filter(x=>x.sold).length, fr=a.length-r-sd;
   tip.className="tip";
   tip.innerHTML=`<div class="tip-n"><b>${b}</b><span>namas</span></div><div class="tip-b"><span class="tip-sub">${FLOORS.length} aukštai · ${a.length} butai</span>
-  <div class="tip-st"><div><b class="c-free">${fr}</b><span>Laisvi</span></div><div><b class="c-res">${r}</b><span>Rezervuoti</span></div></div>
-  <div class="tip-bar"><i style="flex:${fr}"></i><i style="flex:${r}"></i></div></div>`;
+  <div class="tip-st"><div><b class="c-free">${fr}</b><span>Laisvi</span></div><div><b class="c-res">${r}</b><span>Rezervuoti</span></div>${sd?`<div><b class="c-sold">${sd}</b><span>Parduoti</span></div>`:""}</div>
+  <div class="tip-bar"><i style="flex:${fr}"></i><i style="flex:${r}"></i><i class="s" style="flex:${sd}"></i></div></div>`;
 }
 function placeTip(x,y){
   const w=tip.offsetWidth||276,h=tip.offsetHeight||100, W=innerWidth,H=innerHeight;
@@ -608,13 +631,14 @@ C.pastatai.shapes.filter(s=>s.closed&&s.pts.length>2).forEach(s=>{
 
 bindHover($("pinA"),()=>bldgTip("A")); bindHover($("pinB"),()=>bldgTip("B"));
 
-$("pickList").innerHTML=BUILDINGS.map(b=>{
+function renderPickList(){ $("pickList").innerHTML=BUILDINGS.map(b=>{
   const ab=all.filter(x=>x.b===b);
-  return `<div class="pl-b"><h3>Namas ${b}<span>${ab.filter(x=>!x.res).length} laisvi iš ${ab.length}</span></h3>`+FLOORS.map(f=>{
-    const l=floorApts(b,f), r=l.filter(x=>x.res).length;
-    return `<a href="#aukstas-${b}-${f}"><span>${f} aukštas</span><span class="st"><i class="dot"></i>${l.length-r}<i class="dot r" style="margin-left:8px"></i>${r}</span><span class="go" aria-hidden="true">→</span></a>`;
+  return `<div class="pl-b"><h3>Namas ${b}<span>${ab.filter(isFree).length} laisvi iš ${ab.length}</span></h3>`+FLOORS.map(f=>{
+    const l=floorApts(b,f), r=l.filter(x=>x.res).length, sd=l.filter(x=>x.sold).length;
+    return `<a href="#aukstas-${b}-${f}"><span>${f} aukštas</span><span class="st"><i class="dot"></i>${l.length-r-sd}<i class="dot r" style="margin-left:8px"></i>${r}${sd?`<i class="dot s" style="margin-left:8px"></i>${sd}`:""}</span><span class="go" aria-hidden="true">→</span></a>`;
   }).join("")+`</div>`;
-}).join("");
+}).join(""); }
+renderPickList();
 
 /* ---------- floor page ---------- */
 const aptG=$("aptG");
@@ -624,11 +648,11 @@ function renderFloor(b,f){
   $("segB").innerHTML=BUILDINGS.map(x=>`<a href="#aukstas-${x}-${f}" class="${x===b?"on":""}">${x}</a>`).join("");
   $("segF").innerHTML=FLOORS.map(x=>`<a href="#aukstas-${b}-${x}" class="${x===f?"on":""}">${x}</a>`).join("");
   const list=floorApts(b,f);
-  $("alist").innerHTML=list.map(a=>`<a href="#butas-${a.id}" data-id="${a.id}"><b>${a.f}${a.pos}</b><span class="m">${a.t.k} kamb. · ${fmtN(a.area)} m²</span><span class="st">${a.res?'<i class="dot r"></i>Rezerv.':'<i class="dot"></i>Laisvas'}</span></a>`).join("");
+  $("alist").innerHTML=list.map(a=>`<a href="#butas-${a.id}" data-id="${a.id}"><b>${a.f}${a.pos}</b><span class="m">${a.t.k} kamb. · ${fmtN(a.area)} m²</span><span class="st">${stDot(a)}${a.sold?"Parduotas":a.res?"Rezerv.":"Laisvas"}</span></a>`).join("");
   aptG.textContent="";
   C.aukstas.shapes.filter(s=>s.closed&&s.pts.length>2).forEach(s=>{
     const i=parseInt(s.href,10)-1, apt=list[i]; if(!apt) return;
-    const a=document.createElementNS(NS,"a"); a.setAttribute("href","#butas-"+apt.id); a.setAttribute("class","ap"+(apt.res?" res":"")); a.setAttribute("aria-label","Butas "+apt.f+apt.pos+(apt.res?", rezervuotas":", laisvas")); a.dataset.id=apt.id;
+    const a=document.createElementNS(NS,"a"); a.setAttribute("href","#butas-"+apt.id); a.setAttribute("class","ap"+(apt.res?" res":"")+(apt.sold?" sold":"")); a.setAttribute("aria-label","Butas "+apt.f+apt.pos+", "+stName(apt).toLowerCase()); a.dataset.id=apt.id;
     const p=document.createElementNS(NS,"path"); p.setAttribute("d",pathD(s.pts)); a.appendChild(p);
     const [cx,cy]=centroid(s.pts);
     const r=document.createElementNS(NS,"rect"); r.setAttribute("x",cx-36); r.setAttribute("y",cy-19); r.setAttribute("width",72); r.setAttribute("height",38); r.setAttribute("rx",19); a.appendChild(r);
@@ -654,13 +678,13 @@ function renderApt(a){
   curApt=a;
   $("aptEyebrow").textContent="Namas "+a.b+" · "+a.f+" aukštas";
   $("aptTitle").textContent="Butas "+a.b+"-"+a.f+a.pos;
-  const st=$("aptStatus"); st.className="status"+(a.res?" r":""); st.innerHTML=(a.res?'<i class="dot r"></i>Rezervuotas':'<i class="dot"></i>Laisvas');
+  const st=$("aptStatus"); st.className="status"+stCls(a); st.innerHTML=stDot(a)+stName(a);
   $("aptBack").href="#aukstas-"+a.b+"-"+a.f;
-  $("aptImg").alt="Buto "+a.b+"-"+a.f+a.pos+" planas";
+  $("aptImg").alt="Buto "+a.b+"-"+a.f+a.pos+" planas"; $("aptImg").src=a.plan||"img/butas.webp";
   $("aptSpecs").innerHTML=`<div><span>Kambariai</span><b>${a.t.k}</b></div><div><span>Plotas</span><b>${fmtN(a.area)} m²</b></div>
-    <div><span>Balkonas</span><b>${fmtN(a.t.bal)} m²</b></div><div><span>Kaina</span><b>${a.res?"–":fmtP(a.price)}</b></div>`;
+    <div><span>Balkonas</span><b>${fmtN(a.t.bal)} m²</b></div><div><span>Kaina</span><b>${isFree(a)&&a.price?fmtP(a.price):"–"}</b></div>`;
   $("aptRooms").innerHTML=a.t.r.map(r=>`<tr><td>${r[0]}</td><td>${fmtN(r[1])} m²</td></tr>`).join("")+`<tr class="tot"><td>Iš viso</td><td>${fmtN(a.area)} m²</td></tr>`;
-  $("aptAsk").textContent=a.res?"Pranešti, jei atsilaisvins":"Teirautis dėl buto";
+  $("aptAsk").textContent=a.sold?"Teirautis dėl panašaus buto":a.res?"Pranešti, jei atsilaisvins":"Teirautis dėl buto";
   const list=floorApts(a.b,a.f), i=a.idx;
   $("aptPrev").href="#butas-"+list[(i+7)%8].id; $("aptNext").href="#butas-"+list[(i+1)%8].id;
 }
@@ -759,14 +783,14 @@ bubTo(cta); document.fonts&&document.fonts.ready.then(()=>bubTo(cta));
 
 function toast(t){ const el=$("toast"); el.textContent=t; el.classList.add("on"); clearTimeout(toast.t); toast.t=setTimeout(()=>el.classList.remove("on"),2400); }
 document.querySelectorAll("[data-soon]").forEach(a=>a.addEventListener("click",e=>{ e.preventDefault(); document.body.classList.remove("menu"); toast("„"+a.dataset.soon+"“ sekcija dar kuriama"); }));
-const modal=$("modal"); let lastFocus=null;
+const modal=$("modal"); let lastFocus=null, modalAt=0;
 function openModal(){
   const a=curApt; lastFocus=document.activeElement;
   $("mApt").textContent=a?("Butas "+a.b+"-"+a.f+a.pos+" · "+a.t.k+" kamb. · "+fmtN(a.area)+" m²"):"Du Aidai";
-  $("mTitle").textContent=a&&a.res?"Pranešti, jei atsilaisvins":"Teirautis dėl buto";
+  $("mTitle").textContent=a&&a.sold?"Teirautis dėl panašaus buto":a&&a.res?"Pranešti, jei atsilaisvins":"Teirautis dėl buto";
   $("mForm").hidden=false; $("mDone").hidden=true; $("fErr").hidden=true;
   $("askForm").reset(); $("fMsg").value=a?("Domina butas "+a.b+"-"+a.f+a.pos+"."):"";
-  modal.hidden=false; document.body.classList.add("locked"); setTimeout(()=>$("fName").focus(),60);
+  modalAt=Date.now(); modal.hidden=false; document.body.classList.add("locked"); setTimeout(()=>$("fName").focus(),60);
 }
 function closeModal(){ modal.hidden=true; document.body.classList.remove("locked"); lastFocus&&lastFocus.focus(); }
 $("aptAsk").addEventListener("click",openModal);
@@ -779,9 +803,25 @@ $("askForm").addEventListener("submit",e=>{
   if(!n.value.trim()){ err="Įrašykite vardą."; n.setAttribute("aria-invalid","true"); }
   else if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(m.value.trim())){ err="Įrašykite teisingą el. pašto adresą."; m.setAttribute("aria-invalid","true"); }
   else if(p.value.trim() && !/^[+\d][\d\s()-]{6,}$/.test(p.value.trim())){ err="Patikrinkite telefono numerį."; p.setAttribute("aria-invalid","true"); }
-  if(err){ const fe=$("fErr"); fe.textContent=err; fe.hidden=false; return; }
-  $("mForm").hidden=true; $("mDone").hidden=false;
+  const fe=$("fErr");
+  if(err){ fe.textContent=err; fe.hidden=false; return; }
+  /* užklausa keliauja į CRM (api/uzklausa.php) */
+  const btn=$("fSend"); btn.disabled=true; btn.textContent="Siunčiama…"; fe.hidden=true;
+  fetch("api/uzklausa.php",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({
+    vardas:n.value.trim(), el_pastas:m.value.trim(), telefonas:p.value.trim(), komentaras:$("fMsg").value.trim(),
+    butas:curApt?curApt.id:"", svetaine:$("fHp").value, ms:Date.now()-modalAt })})
+  .then(r=>r.json().catch(()=>({})).then(j=>{ if(!r.ok||j.error) throw new Error(j.error||"Nepavyko išsiųsti užklausos. Bandykite dar kartą."); }))
+  .then(()=>{ $("mForm").hidden=true; $("mDone").hidden=false; })
+  .catch(e=>{ fe.textContent=e instanceof TypeError?"Nepavyko išsiųsti užklausos. Patikrinkite ryšį ir bandykite dar kartą.":e.message; fe.hidden=false; })
+  .finally(()=>{ btn.disabled=false; btn.textContent="Siųsti užklausą"; });
 });
+
+/* ---------- CRM duomenys: būsenos, kainos, plotai, patalpos, planai ---------- */
+fetch("api/butai.php",{cache:"no-store"}).then(r=>r.ok?r.json():null).then(d=>{
+  if(!d||!Array.isArray(d.apts)||!d.apts.length) return;
+  applyCrm(d.apts); renderCounts(); renderPickList();
+  if(curView==="aukstas"||curView==="butas") route();
+}).catch(()=>{});
 document.querySelectorAll('a[href="#vieta"]').forEach(l=>l.addEventListener("click",e=>{ if(location.hash==="#vieta"){ e.preventDefault(); document.body.classList.remove("menu"); $("vieta").scrollIntoView({behavior:"smooth"}); } }));
 $("burger").addEventListener("click",()=>{ const o=document.body.classList.toggle("menu"); $("burger").setAttribute("aria-expanded",o); });
 
