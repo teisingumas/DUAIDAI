@@ -6,7 +6,7 @@ const APT_ST = ["Laisvas", "Rezervuotas", "Parduotas"];
 const INQ_ST = [["nauja", "Nauja"], ["susisiekta", "Susisiekta"], ["uzdaryta", "Uždaryta"]];
 const INQ_L = Object.fromEntries(INQ_ST);
 const CL_ST = ["Potencialus", "Apžiūra", "Derybos", "Rezervavo", "Pirko", "Atsisakė"];
-const ST_COLOR = { Laisvas: "var(--free)", Rezervuotas: "var(--res)", Parduotas: "var(--sold)" };
+const ST_COLOR = { Laisvas: "var(--free)", Rezervuotas: "var(--res)", Parduotas: "var(--sold-strong)" };
 const PLAN_DEFAULT = "/img/butas.webp";
 
 /* ---------- DOM pagalbininkas ---------- */
@@ -368,7 +368,8 @@ VIEWS.uzklausos = (a) => {
         csv(`uzklausos-${today()}.csv`, ["Data", "Butas", "Vardas ir pavardė", "Telefonas", "El. paštas", "Žinutė", "Būsena", "Pastabos", "Paskutinį kartą keitė", "Pakeista"],
           f.map(q => [dt(q.t), aptNo(q.apt), q.name, q.phone, q.email, q.msg, INQ_L[q.status], q.note, q.by, q.updated ? dt(q.updated) : ""]));
       } }, "Eksportuoti CSV")),
-    card(null, only ? null : h("div", { class: "filters" }, search, aptSel, chips), list),
+    only ? null : h("section", { class: "card filter-card" }, h("div", { class: "filters" }, search, aptSel, chips)),
+    card(null, list),
   ];
 };
 function inqRow(q, redraw) {
@@ -465,9 +466,10 @@ VIEWS.klientai = () => {
       h("button", { class: "btn ghost", type: "button", onclick: () => printSheet("Du Aidai – klientai", `Sudaryta ${dt(new Date())}` + (CF.st ? " · statusas: " + CF.st : "") + ((CF.min || CF.max) ? ` · kaina ${CF.min || 0}–${CF.max || "∞"} €` : ""),
         ["Klientas", "Telefonas", "El. paštas", "Butas", "Statusas", "Kaina", "Komentaras"], filtered().map(c => [fullName(c), c.phone, c.email, aptNo(c.apt), c.status, eur(c.price), c.comment.slice(0, 160)])) }, "PDF"),
       h("a", { class: "btn", href: "#klientas/naujas" }, "+ Naujas klientas")),
-    card(null,
+    h("section", { class: "card filter-card" },
       h("div", { class: "filters" }, search, aptSel, h("div", { class: "range" }, h("span", { class: "muted" }, "Kaina"), mk("min", "nuo €"), "–", mk("max", "iki €")), sortSel),
-      h("div", { class: "filters" }, chips),
+      h("div", { class: "filters", style: { marginTop: "12px" } }, chips)),
+    card(null,
       h("div", { class: "tbl-wrap" }, h("table", { class: "tbl" }, h("thead", {}, h("tr", {}, h("th", {}, "Klientas"), h("th", {}, "Telefonas"), h("th", {}, "Butas"), h("th", {}, "Statusas"), h("th", { class: "r" }, "Kaina"), h("th", { class: "r hide-s" }, "Dok."), h("th", { class: "hide-s" }, "Atnaujinta"))), tb)), sum),
   ];
 };
@@ -513,8 +515,8 @@ VIEWS.klientas = (id) => {
   return [
     h("a", { class: "crumb", href: "#klientai" }, "← Klientai"),
     head(isNew ? "Naujas klientas" : fullName(orig) || "(be vardo)", isNew ? "Užpildykite bent vardą arba pavardę." : `Sukurta ${dOnly(orig.created)} · paskutinį kartą keitė ${orig.by} ${ago(orig.updated)}`,
-      !isNew && orig.phone ? h("a", { class: "btn ghost", href: telHref(orig.phone) }, I.tel(), "Skambinti") : null,
-      !isNew && orig.email ? h("a", { class: "btn ghost", href: "mailto:" + orig.email }, I.mail(), "Rašyti") : null),
+      !isNew && orig.phone ? h("a", { class: "btn", href: telHref(orig.phone) }, I.tel(), "Skambinti") : null,
+      !isNew && orig.email ? h("a", { class: "btn", href: "mailto:" + orig.email }, I.mail(), "Rašyti") : null),
     h("div", { class: "cols" },
       h("div", {},
         card("Kliento duomenys", h("div", { class: "grid2" },
@@ -529,7 +531,7 @@ VIEWS.klientas = (id) => {
         apt ? card("Butas", h("div", { class: "link-card" }, h("a", { class: "no", href: "#butas/" + apt.id, style: { fontWeight: 800 } }, apt.no), stTag(apt.status), h("span", {}, `${apt.rooms} kamb. · ${m2(apt.area)} · ${eur(apt.price)}`))) : null,
         inq ? card("Užklausa, iš kurios sukurtas", h("div", { class: "muted", style: { fontSize: "13px" } }, dt(inq.t) + " · " + INQ_L[inq.status]), h("p", { class: "inq-msg mt" }, inq.msg || "(be komentaro)"), inq.note ? h("p", { class: "inq-msg mt" }, h("b", {}, "Pastaba: "), inq.note) : null,
           h("a", { class: "btn ghost small mt", href: "#uzklausos/" + inq.id }, "Atidaryti užklausą")) : null,
-        isNew ? null : card("Pavojinga zona", h("button", { class: "btn danger", type: "button", onclick: async () => {
+        isNew ? null : card("Kliento ištrinimas",h("button", { class: "btn danger", type: "button", onclick: async () => {
           if (!(await confirmDlg("Ištrinti klientą?", `${fullName(orig)} ir visi prisegti dokumentai bus ištrinti visam laikui.`, "Ištrinti", "danger"))) return;
           try { await api("client-delete", { id: orig.id }); S.clients = S.clients.filter(x => x.id !== orig.id); S.inqs.forEach(q => { if (q.client === orig.id) q.client = ""; }); setDirty(false); toast("Klientas ištrintas"); location.hash = "#klientai"; } catch (e) { toast(e.message, true); }
         } }, "Ištrinti klientą")))),
