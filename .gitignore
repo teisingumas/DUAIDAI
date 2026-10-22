@@ -1,0 +1,11 @@
+# Slapti duomenys
+.env
+.env.*
+!.env.example
+
+# Archyvai įkėlimui į hostingą
+*.zip
+
+# Sistema
+.DS_Store
+Thumbs.db

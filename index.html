@@ -1,0 +1,810 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Du Aidai</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap">
+<style>
+/* Layout: one fixed transparent header over four full-screen views (hero → building picker → floor plan → apartment). Single deliberate light look over photography. */
+:root{
+  --accent:#1f4d3a; --accent-hi:#2b6a50; --ink:#17201b; --muted:#5e6862; --paper:#eef0ec; --surface:#ffffff; --line:#dfe3df;
+  --free:#2a7a4b; --free-ink:#1e5a37; --res:#d08a1e; --res-ink:#7a4a08; --res-block:#a8681a; --white:#ffffff;
+  --font:"Manrope", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --hdr:76px;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--font);font-size:15px;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body.locked{overflow:hidden}
+a{color:inherit}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent-hi);outline-offset:3px}
+
+/* ---------- loader ---------- */
+#loader{position:fixed;inset:0;z-index:100;background:var(--paper);display:grid;place-items:center;transition:transform .9s cubic-bezier(.76,0,.24,1), opacity .9s}
+#loader.done{transform:translateY(-100%)}
+.ld{display:grid;justify-items:center;gap:34px;width:min(420px,80vw)}
+.ld-mark{width:min(132px,32vw);height:auto;overflow:visible}
+.ld-word{width:100%;height:auto;overflow:visible}
+.ld path{fill:var(--ink);fill-opacity:0;stroke:var(--ink);stroke-width:2.2;stroke-dasharray:1 1;stroke-dashoffset:1;vector-effect:non-scaling-stroke;stroke-linejoin:round;transition:fill-opacity .6s}
+.ld-word path{stroke-width:1.1}
+#loader.filled path{fill-opacity:1}
+.ld-pct{font-size:12px;font-weight:700;letter-spacing:.2em;color:var(--muted);font-variant-numeric:tabular-nums;display:flex;gap:14px;align-items:center}
+.ld-pct i{display:block;width:44px;height:1px;background:var(--line)}
+
+/* ---------- header ---------- */
+header.site{position:fixed;inset:0 0 auto;z-index:50;height:calc(var(--hdr) + env(safe-area-inset-top,0px));padding-top:env(safe-area-inset-top,0px);
+  padding-left:max(56px, env(safe-area-inset-left,0px));padding-right:max(56px, env(safe-area-inset-right,0px));
+  display:grid;grid-template-columns:1fr auto 1fr;align-items:center;color:var(--white);background:transparent;transition:color .4s}
+header.site.ink{color:var(--ink)}
+nav.main{border-radius:999px;transition:background .45s, box-shadow .45s, transform .45s, color .45s}
+.brand{transition:transform .45s}
+@media (min-width:981px){
+  header.site.capsule nav.main{background:rgba(250,251,249,.74);backdrop-filter:blur(16px) saturate(1.3);-webkit-backdrop-filter:blur(16px) saturate(1.3);
+    box-shadow:0 8px 30px rgba(23,32,27,.14), inset 0 0 0 1px rgba(255,255,255,.6);color:var(--ink);transform:translateY(4px);animation:pillIn .5s cubic-bezier(.2,.8,.2,1)}
+  nav.main{position:relative;padding:6px 10px;gap:4px}
+  nav.main a{position:relative;z-index:1;padding:12px 20px;transition:color .35s, opacity .2s}
+  header.site nav.main a.cta, header.site nav.main a.cta:hover{background:transparent;color:inherit;margin:0;opacity:.86}
+  header.site nav.main a.act, header.site nav.main a.act:hover{color:var(--white);opacity:1}
+  .bub{position:absolute;z-index:0;top:6px;bottom:6px;left:0;width:0;border-radius:999px;background:var(--accent);box-shadow:0 4px 14px rgba(31,77,58,.28);
+    transition:left .5s cubic-bezier(.65,0,.2,1.15), width .5s cubic-bezier(.65,0,.2,1.15), background .3s;pointer-events:none}
+}
+@media (max-width:980px){ .bub{display:none} }
+@keyframes pillIn{from{transform:translateY(-14px) scale(.96);opacity:.4}to{transform:translateY(4px) scale(1);opacity:1}}
+header.site.capsule .burger{background:rgba(250,251,249,.74);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-radius:999px;color:var(--ink);box-shadow:0 8px 30px rgba(23,32,27,.14)}
+body.menu header.site.capsule .burger{background:transparent;color:var(--white);box-shadow:none}
+.brand{justify-self:start;display:flex;align-items:center;padding:8px 0;text-decoration:none}
+.brand svg{height:50px;width:auto;display:block}
+.brand path{fill:currentColor}
+nav.main{display:flex;align-items:center;gap:6px}
+nav.main a{text-decoration:none;font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;padding:12px 14px;border-radius:999px;opacity:.86;transition:opacity .2s, background .2s}
+nav.main a:hover{opacity:1}
+nav.main a.cta{background:var(--accent);color:var(--white);opacity:1;padding:12px 20px;margin-right:10px}
+nav.main a.cta:hover{background:var(--accent-hi)}
+.burger{display:none;justify-self:end;background:transparent;border:0;width:44px;height:44px;cursor:pointer;place-items:center}
+.burger span{display:block;width:22px;height:2px;background:currentColor;box-shadow:0 7px 0 currentColor,0 -7px 0 currentColor}
+@media (max-width:980px){
+  header.site{grid-template-columns:1fr auto;padding-left:max(24px, env(safe-area-inset-left,0px));padding-right:max(16px, env(safe-area-inset-right,0px))}
+  .brand svg{height:40px}
+  .burger{display:grid}
+  nav.main{position:fixed;inset:0;z-index:-1;flex-direction:column;justify-content:center;gap:10px;background:var(--accent);color:var(--white);
+    opacity:0;pointer-events:none;transition:opacity .35s}
+  nav.main a{font-size:16px}
+  nav.main a.cta{background:var(--white);color:var(--accent);margin:0 0 14px}
+  body.menu nav.main{opacity:1;pointer-events:auto}
+  body.menu header.site{color:var(--white)}
+}
+
+/* ---------- views ---------- */
+.view{display:none}
+.view.on{display:block;animation:viewIn .7s ease both}
+@keyframes viewIn{from{opacity:0}to{opacity:1}}
+
+/* hero */
+.hero{position:relative;height:100svh;min-height:560px;overflow:hidden;background:var(--ink);color:var(--white)}
+.hero img.bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:60% 50%;max-width:none;transform:scale(1.08)}
+.hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,16,13,.55) 0%,rgba(10,16,13,.12) 26%,rgba(10,16,13,0) 50%,rgba(10,16,13,.5) 100%);pointer-events:none}
+.hero-c{position:absolute;inset:0;z-index:2;display:grid;place-items:center;padding-left:max(24px, env(safe-area-inset-left,0px));padding-right:max(24px, env(safe-area-inset-right,0px))}
+.hero-word{width:min(1240px,90vw);height:auto;overflow:visible;margin-top:-10vh;mix-blend-mode:overlay}
+.hero-word path{fill:var(--white)}
+.hero-word.ghost{position:absolute;mix-blend-mode:normal}
+.hero-word.ghost path{fill:rgba(255,255,255,.34)}
+.hero-foot{position:absolute;z-index:2;left:0;right:0;bottom:0;display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap;
+  padding-left:max(56px, env(safe-area-inset-left,0px));padding-right:max(56px, env(safe-area-inset-right,0px));padding-block:0 calc(32px + env(safe-area-inset-bottom,0px))}
+.hero-foot .k{font-size:11px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;opacity:.75}
+.hero-foot .v{font-size:15px;font-weight:500;margin-top:6px}
+.hero-facts{display:flex;gap:36px}
+body.ready .hero img.bg{transform:scale(1);transition:transform 2.6s cubic-bezier(.2,.7,.2,1)}
+.hero-word, .hero-foot, header.site{opacity:0}
+body.ready .hero-word{opacity:.95;transition:opacity 1.4s .35s, transform 1.4s .35s cubic-bezier(.2,.7,.2,1)}
+.hero-word{transform:translateY(24px)}
+body.ready .hero-word{transform:none}
+body.ready .hero-word.ghost{opacity:1}
+body.ready .hero-foot{opacity:1;transition:opacity 1s .9s}
+body.ready header.site{opacity:1;transition:opacity 1s .6s, color .4s}
+
+/* picker */
+.pick{position:relative;height:100svh;min-height:520px;background:var(--ink);overflow-x:auto;overflow-y:hidden;scrollbar-width:none}
+.pick::-webkit-scrollbar{display:none}
+.pick svg{display:block;height:100%;width:max(100%, calc(100svh * 16 / 9));min-width:100%}
+.pick image{pointer-events:none}
+.fl path{fill:rgba(255,255,255,0);stroke:rgba(255,255,255,.38);stroke-width:1;vector-effect:non-scaling-stroke;transition:fill .25s, stroke .25s;cursor:pointer}
+.fl:hover path, .fl:focus path{fill:rgba(31,77,58,.58);stroke:var(--white);stroke-width:1.6}
+.fl:focus{outline:none}
+.pick-ui{position:fixed;z-index:20;left:max(28px, env(safe-area-inset-left,0px));bottom:calc(28px + env(safe-area-inset-bottom,0px));display:flex;gap:10px;flex-wrap:wrap;align-items:center;max-width:calc(100% - 56px)}
+.chip{display:inline-flex;align-items:center;gap:10px;height:44px;padding:0 18px;border-radius:999px;background:rgba(18,24,21,.72);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:var(--white);font-size:13px;font-weight:600;text-decoration:none;border:0;cursor:pointer}
+.chip b{font-weight:800}
+a.chip:hover, button.chip:hover{background:rgba(18,24,21,.88)}
+
+/* hover card — variant 5 "architektūrinis blokas" */
+.tip{position:fixed;z-index:60;left:0;top:0;display:flex;height:100px;box-shadow:0 14px 34px rgba(23,32,27,.22);pointer-events:none;opacity:0;transform:translateY(6px);transition:opacity .18s, transform .18s;font-family:var(--font);color:var(--ink)}
+.tip.on{opacity:1;transform:none}
+.tip-n{width:80px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:var(--white);background:var(--accent)}
+.tip-n b{font-size:42px;font-weight:800;line-height:1}
+.tip-n.sm b{font-size:26px}
+.tip-n span{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase}
+.tip.res .tip-n{background:var(--res-block)}
+.tip-st b sup.u{font-size:12px;font-weight:700;vertical-align:top;margin-left:2px;position:relative;top:2px}
+.tip.spot{height:auto;min-height:50px;box-shadow:0 8px 20px rgba(23,32,27,.2)}
+.tip.spot .tip-n{width:42px;gap:0}
+.tip.spot .tip-n b{font-size:20px}
+.tip.spot .tip-n span{font-size:8px;letter-spacing:.1em}
+.tip.spot .tip-b{width:150px;padding:7px 10px;gap:3px;justify-content:center}
+.tip.spot .tip-name{font-size:12px;line-height:1.2}
+.tip.spot .tip-mode{font-size:10px;gap:5px}
+.tip.spot .dot{width:5px;height:5px}
+.tip-name{font-size:16px;font-weight:800;line-height:1.25;text-wrap:balance}
+.tip-mode{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:700;color:var(--free-ink)}
+.tip-b{width:196px;padding:12px 16px;background:var(--surface);display:flex;flex-direction:column;justify-content:space-between}
+.tip-sub{font-size:12px;font-weight:600;color:var(--muted)}
+.tip-st{display:flex;gap:22px}
+.tip-st div{display:flex;flex-direction:column;line-height:1.1}
+.tip-st b{font-size:24px;font-weight:800}
+.tip-st span{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.c-free{color:var(--free-ink)} .c-res{color:var(--res-ink)}
+.tip-bar{display:flex;gap:2px;height:6px;border-radius:3px;overflow:hidden}
+.tip-bar i{display:block;background:var(--free)} .tip-bar i+i{background:var(--res)}
+.tip-stat{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:700}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--free);flex:none}
+.dot.r{background:var(--res)}
+
+/* floor + apartment pages */
+.page{min-height:100svh;padding-top:calc(var(--hdr) + env(safe-area-inset-top,0px) + 8px);padding-bottom:calc(40px + env(safe-area-inset-bottom,0px));
+  padding-left:max(28px, env(safe-area-inset-left,0px));padding-right:max(28px, env(safe-area-inset-right,0px))}
+.wrap{max-width:1500px;margin:0 auto;display:grid;grid-template-columns:320px minmax(0,1fr);gap:32px;align-items:start}
+.side{display:grid;gap:22px;position:sticky;top:calc(var(--hdr) + 16px)}
+.back{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;text-decoration:none;color:var(--muted);padding:10px 0}
+.back:hover{color:var(--ink)}
+.eyebrow{font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
+h1{margin:6px 0 0;font-size:clamp(30px,3.2vw,44px);font-weight:800;letter-spacing:-.02em;line-height:1.05;text-wrap:balance}
+.seg{display:grid;gap:8px}
+.seg-row{display:flex;gap:6px;flex-wrap:wrap}
+.seg-row a{min-width:46px;height:44px;display:grid;place-items:center;padding:0 12px;border:1px solid var(--line);background:var(--surface);text-decoration:none;font-weight:700;font-size:14px;border-radius:4px}
+.seg-row a:hover{border-color:var(--ink)}
+.seg-row a.on{background:var(--accent);border-color:var(--accent);color:var(--white)}
+.legend{display:flex;gap:18px;font-size:13px;color:var(--muted)}
+.legend span{display:flex;align-items:center;gap:8px}
+.sw{width:14px;height:14px;border-radius:3px;border:1px solid var(--line);background:var(--surface)}
+.sw.r{background:rgba(208,138,30,.35);border-color:var(--res)}
+.alist{display:grid;border-top:1px solid var(--line)}
+.alist a{display:grid;grid-template-columns:62px 1fr auto;gap:10px;align-items:center;padding:11px 4px;border-bottom:1px solid var(--line);text-decoration:none;font-size:14px;font-variant-numeric:tabular-nums}
+.alist a:hover, .alist a.hl{background:var(--surface)}
+.alist b{font-weight:800}
+.alist .m{color:var(--muted)}
+.alist .st{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700}
+.planbox{background:transparent;padding:0;min-width:0}
+.planbox svg{display:block;width:100%;height:auto}
+.ap path{fill:rgba(31,77,58,0);stroke:rgba(31,77,58,0);stroke-width:2;vector-effect:non-scaling-stroke;transition:fill .2s, stroke .2s;cursor:pointer}
+.ap.res path{fill:rgba(208,138,30,.26);stroke:rgba(208,138,30,.55)}
+.ap:hover path, .ap:focus path, .ap.hl path{fill:rgba(31,77,58,.32);stroke:var(--accent)}
+.ap.res:hover path, .ap.res:focus path, .ap.res.hl path{fill:rgba(208,138,30,.42);stroke:var(--res)}
+.ap:focus{outline:none}
+.ap text{font-family:var(--font);font-size:22px;font-weight:800;fill:var(--white);text-anchor:middle;dominant-baseline:central;pointer-events:none}
+.ap rect{fill:var(--accent);pointer-events:none}
+.ap.res rect{fill:var(--res-block)}
+
+/* apartment */
+.apt .wrap{grid-template-columns:minmax(0,1fr) 380px}
+.apt .planbox{order:0;background:transparent;padding:0;position:sticky;top:calc(var(--hdr) + 24px);align-self:start}
+.apt .side{order:1;position:static}
+.back-cta{display:inline-flex;align-items:center;gap:10px;height:46px;padding:0 22px;border-radius:999px;background:var(--accent);color:var(--white);font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;text-decoration:none;width:max-content;box-shadow:0 6px 18px rgba(31,77,58,.25);transition:background .2s, transform .2s}
+.back-cta:hover{background:var(--accent-hi);transform:translateX(-3px)}
+.flp{max-width:1500px;margin:0 auto;display:grid;gap:28px}
+.fl-top{display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-end;gap:20px 0;padding-top:12px}
+.fl-top>*{padding:0 34px}
+.fl-top>*+*{border-left:1px solid var(--line)}
+.fl-top h1{font-size:clamp(28px,2.6vw,38px)}
+.fl-top .legend{height:44px;align-items:center}
+.fl-back{display:flex;align-items:flex-end}
+.fl-top>.fl-back{border-left:0;padding-left:0}
+.fl-body{display:grid;grid-template-columns:340px minmax(0,1fr);gap:24px 56px;align-items:start}
+.fl-side{display:grid;gap:18px;position:sticky;top:calc(var(--hdr) + 16px)}
+.fl-plan{padding-left:16px}
+@media (max-width:980px){
+  .fl-body{grid-template-columns:1fr}
+  .fl-side{position:static;order:2}
+  .fl-plan{order:1;padding-left:0}
+  .fl-top{justify-content:flex-start}
+  .fl-top>*{padding:0 18px 0 0}
+  .fl-top>*+*{border-left:0}
+  .apt .planbox{position:static}
+}
+.status{display:inline-flex;align-items:center;gap:8px;height:32px;padding:0 14px;border-radius:999px;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;background:#eaf3ee;color:var(--free-ink);width:max-content}
+.status.r{background:#fbf1e2;color:var(--res-ink)}
+.specs{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--line);border-left:1px solid var(--line)}
+.specs div{padding:14px 16px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);display:grid;gap:4px;background:var(--surface)}
+.specs span{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.specs b{font-size:22px;font-weight:800;font-variant-numeric:tabular-nums}
+table.rooms{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}
+table.rooms td{padding:9px 0;border-bottom:1px solid var(--line)}
+table.rooms td:last-child{text-align:right;font-weight:700}
+table.rooms tr.tot td{border-bottom:0;font-weight:800;padding-top:12px}
+.btn{display:flex;align-items:center;justify-content:center;height:52px;border-radius:999px;background:var(--accent);color:var(--white);font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;text-decoration:none;border:0;cursor:pointer;width:100%}
+.btn:hover{background:var(--accent-hi)}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.btn.ghost:hover{border-color:var(--ink)}
+.pn{display:flex;gap:8px}
+.pn a{flex:1}
+@media (max-width:980px){
+  .wrap, .apt .wrap{grid-template-columns:1fr}
+  .side{position:static}
+  .apt .side{order:1}
+}
+
+/* location */
+.loc{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);background:var(--paper)}
+.map{position:relative;aspect-ratio:1076/743;overflow:hidden;background:#f3f1ec}
+.map svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+.m-road{fill:#fbfaf7;stroke:rgba(31,77,58,.28);stroke-width:1;vector-effect:non-scaling-stroke}
+.m-park{fill:url(#dots)}
+.m-campus{fill:rgba(31,77,58,.07)}
+.m-tint{fill:var(--accent);opacity:.13;pointer-events:none}
+.m-lbl{font-family:var(--font);font-size:13px;font-weight:600;fill:rgba(23,32,27,.55);letter-spacing:.02em}
+.m-lbl.big{font-size:16px;fill:rgba(31,77,58,.75);font-weight:700}
+.m-home rect{fill:var(--accent)}
+.m-home path{fill:var(--white)}
+.m-home text{font-family:var(--font);font-size:13px;font-weight:800;letter-spacing:.16em;fill:var(--accent)}
+.m-home .pulse{fill:none;stroke:var(--accent);stroke-width:2;transform-box:fill-box;transform-origin:center;animation:pulse 2.4s ease-out infinite}
+@keyframes pulse{from{transform:scale(.6);opacity:.8}to{transform:scale(2.2);opacity:0}}
+.pt{cursor:pointer;transform-box:fill-box;transform-origin:center;animation:ptIn .5s cubic-bezier(.3,1.6,.5,1) both}
+.pt.out{animation:ptOut .22s ease-in both}
+@keyframes ptIn{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+@keyframes ptOut{to{transform:scale(0);opacity:0}}
+.pt-s{transform-box:fill-box;transform-origin:center;transition:transform .35s cubic-bezier(.3,1.5,.5,1)}
+.pt.hl .pt-s{transform:scale(2)}
+.pt circle{fill:var(--ink);stroke:var(--white);stroke-width:2.5;transition:fill .2s}
+.route{fill:none;stroke:var(--accent);stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1 9;animation:march .9s linear infinite;opacity:0;transition:opacity .25s}
+.route.on{opacity:1}
+.route-bg{fill:none;stroke:var(--white);stroke-width:8;stroke-linecap:round;stroke-linejoin:round;opacity:0;transition:opacity .25s}
+.route-bg.on{opacity:.75}
+#rmp{fill:none;stroke:#fff;stroke-width:14;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1 1;stroke-dashoffset:1}
+#rmp.draw{animation:rdraw .9s cubic-bezier(.4,0,.2,1) forwards}
+@keyframes march{to{stroke-dashoffset:-10}}
+@keyframes rdraw{to{stroke-dashoffset:0}}
+.pt text{font-family:var(--font);font-size:12px;font-weight:800;fill:var(--white);text-anchor:middle;dominant-baseline:central;pointer-events:none}
+.pt.hl circle{fill:var(--accent)}
+.pin{fill:transparent;cursor:pointer}
+.pin-ring{fill:none;stroke:var(--white);stroke-width:2;opacity:0;transition:opacity .2s;pointer-events:none}
+.pinA:hover .pin-ring,.pinA:focus .pin-ring{opacity:1}
+.pinA:focus{outline:none}
+.pills{position:absolute;z-index:2;left:24px;bottom:24px;right:24px;display:flex;flex-wrap:wrap;gap:8px}
+.pill{height:44px;padding:0 20px;border-radius:999px;border:0;background:#f4efe6;color:var(--ink);font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;box-shadow:0 2px 10px rgba(23,32,27,.08);transition:background .2s, color .2s}
+.pill:hover{background:var(--white)}
+.pill[aria-pressed="true"]{background:var(--accent);color:var(--white)}
+.loc-txt{padding-block:clamp(88px,10vh,120px) 48px;padding-left:max(48px, env(safe-area-inset-left,0px));padding-right:max(56px, env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:28px;min-width:0}
+.loc-txt h2{margin:6px 0 0;font-size:clamp(40px,5vw,76px);font-weight:800;letter-spacing:-.035em;line-height:.95;text-transform:uppercase;color:var(--ink);text-wrap:balance}
+.loc-txt p{margin:0;max-width:52ch;font-size:14px;font-weight:500;line-height:1.6;letter-spacing:.03em;text-transform:uppercase;color:#3c4640}
+.plist{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px 32px}
+.plist li{display:grid;grid-template-columns:32px minmax(0,1fr);gap:14px;align-items:start;cursor:default;animation:liIn .45s ease both}
+@keyframes liIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.plist .n{width:32px;height:32px;border-radius:50%;background:var(--ink);color:var(--white);display:grid;place-items:center;font-size:12px;font-weight:800;transition:background .2s}
+.plist li.hl .n{background:var(--accent-hi)}
+.plist b{display:block;font-size:15px;font-weight:600;line-height:1.35;padding-top:5px}
+.plist span.d{display:block;font-size:13px;color:var(--muted);margin-top:3px}
+@media (max-width:980px){
+  .loc{grid-template-columns:1fr}
+  .map{min-height:auto;aspect-ratio:1076/743;max-width:100%}
+  .map{order:2} .loc-txt{order:1;padding-left:max(24px, env(safe-area-inset-left,0px));padding-right:max(24px, env(safe-area-inset-right,0px));padding-block:96px 32px}
+  .pills{position:static;padding:16px}
+  .map{display:flex;flex-direction:column;aspect-ratio:auto}
+  .map svg{position:static;aspect-ratio:1076/743;height:auto}
+}
+@media (max-width:560px){ .plist{grid-template-columns:1fr} }
+
+.foot{background:var(--accent);color:var(--white);padding-block:56px calc(40px + env(safe-area-inset-bottom,0px));padding-left:max(56px, env(safe-area-inset-left,0px));padding-right:max(56px, env(safe-area-inset-right,0px))}
+.foot-in{display:grid;gap:36px}
+.foot-word{width:min(520px,80vw);height:auto}
+.foot-word path{fill:var(--white)}
+.foot-cols{display:flex;flex-wrap:wrap;gap:24px 64px;align-items:end;font-size:15px;font-weight:600}
+.foot .eyebrow{color:rgba(255,255,255,.65);margin-bottom:6px}
+.cta-line{font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.5);padding-bottom:4px}
+@media (max-width:980px){ .foot{padding-left:max(24px, env(safe-area-inset-left,0px));padding-right:max(24px, env(safe-area-inset-right,0px))} }
+.modal{position:fixed;inset:0;z-index:80;display:grid;place-items:center;padding:16px}
+.modal[hidden],[hidden]{display:none!important}
+.modal-bg{position:absolute;inset:0;background:rgba(14,22,18,.55);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);animation:fadeIn .3s ease both}
+.modal-card{position:relative;width:min(520px,100%);max-height:calc(100svh - 32px);overflow:auto;background:var(--paper);border-radius:18px;box-shadow:0 30px 80px rgba(0,0,0,.3);animation:cardIn .45s cubic-bezier(.2,.8,.2,1) both}
+.modal-card>#mForm,.modal-card>#mDone{padding:34px 34px 26px}
+.modal-card h2{margin:6px 0 20px;font-size:30px;font-weight:800;letter-spacing:-.02em;line-height:1.1}
+.modal-x{position:absolute;top:12px;right:12px;width:44px;height:44px;border-radius:50%;border:0;background:transparent;font-size:28px;line-height:1;cursor:pointer;color:var(--muted)}
+.modal-x:hover{background:var(--surface);color:var(--ink)}
+#askForm{display:grid;gap:14px}
+.f2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.fld{display:grid;gap:6px}
+.fld span{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.fld input,.fld textarea{font:inherit;font-size:15px;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px;width:100%;resize:vertical}
+.fld input:focus,.fld textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(31,77,58,.15)}
+.fld input[aria-invalid="true"]{border-color:#b4442e}
+.ferr{margin:0;font-size:13px;color:#a03b27;font-weight:600}
+.broker{display:flex;align-items:center;gap:14px;padding:16px 34px;background:var(--surface);border-top:1px solid var(--line)}
+.broker img{width:64px;height:64px;border-radius:50%;object-fit:cover;flex:none;background:#1c2530}
+.broker span{display:block;font-size:12px;color:var(--muted);line-height:1.4}
+.broker b{display:block;font-size:16px;font-weight:800;margin-top:2px}
+.mdone{text-align:center}
+.mdone h2{margin:14px 0 6px}
+.mdone p{margin:0 0 6px;color:var(--muted)}
+.okc{width:64px;height:64px;margin:6px auto 0;border-radius:50%;background:var(--accent);color:var(--white);display:grid;place-items:center;font-size:30px;font-weight:800;animation:cardIn .5s cubic-bezier(.3,1.6,.5,1) both}
+@keyframes fadeIn{from{opacity:0}}
+@keyframes cardIn{from{opacity:0;transform:translateY(24px) scale(.97)}}
+@media (max-width:560px){ .f2{grid-template-columns:1fr} .modal-card>#mForm,.modal-card>#mDone{padding:28px 20px 20px} .broker{padding:14px 20px} }
+
+.pick-list{display:none}
+@media (max-width:980px){
+  nav.main{border-radius:0;padding:0;transform:none!important}
+  .pick{height:auto;min-height:0;overflow:visible;background:var(--paper)}
+  .pick svg{aspect-ratio:16/10}
+  body[data-view="rinkis"] header.site.capsule .burger{background:transparent;box-shadow:none;color:var(--white);backdrop-filter:none;-webkit-backdrop-filter:none}
+  .pick svg{width:100%;height:auto;min-width:0}
+  .pick-ui{display:none}
+  .pick-list{display:grid;gap:28px;background:var(--paper);padding-block:28px calc(40px + env(safe-area-inset-bottom,0px));padding-left:max(20px, env(safe-area-inset-left,0px));padding-right:max(20px, env(safe-area-inset-right,0px))}
+  .pl-b h3{margin:0 0 10px;font-size:24px;font-weight:800;letter-spacing:-.02em;display:flex;align-items:baseline;justify-content:space-between}
+  .pl-b h3 span{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+  .pl-b a{display:grid;grid-template-columns:1fr auto auto;gap:14px;align-items:center;min-height:52px;padding:0 4px;border-top:1px solid var(--line);text-decoration:none;font-size:15px;font-weight:700;font-variant-numeric:tabular-nums}
+  .pl-b a:last-child{border-bottom:1px solid var(--line)}
+  .pl-b .st{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--muted)}
+  .pl-b .go{color:var(--accent);font-size:18px}
+  .pt-s{transform:scale(1.7)}
+  .pt.hl .pt-s{transform:scale(2.5)}
+}
+.toast{position:fixed;z-index:90;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translate(-50%,10px);background:var(--ink);color:var(--white);padding:12px 20px;border-radius:999px;font-size:13px;font-weight:600;opacity:0;pointer-events:none;transition:opacity .25s, transform .25s;max-width:calc(100% - 32px);text-align:center}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+@media (prefers-reduced-motion:reduce){*{transition-duration:.01ms!important;animation-duration:.01ms!important}}
+</style>
+
+<div id="loader" aria-live="polite">
+  <div class="ld">
+    <svg class="ld-mark" viewBox="-4 -4 292 301" aria-hidden="true"><path pathLength="1" d="M0,95 L116,34 L116,293 L93,293 L93,109 L33,139 L33,293 L0,293Z"/><path pathLength="1" d="M168,0 L284,59 L284,293 L249,293 L249,102 L191,71 L191,293 L168,293Z"/></svg>
+    <svg class="ld-word" viewBox="-2 -2 734 87" aria-hidden="true"><path pathLength="1" d="M487.8,1.2 L487.5,82.8 L528.5,82.8 L539.8,79.8 L546.0,76.5 L549.0,74.2 L554.2,69.0 L559.5,61.0 L561.8,55.2 L563.5,46.5 L563.5,37.8 L561.5,28.2 L558.8,21.8 L553.5,14.5 L549.0,10.2 L544.0,6.8 L534.2,2.8 L524.5,1.2Z M496.8,10.2 L523.5,10.0 L529.2,10.8 L538.0,13.8 L542.2,16.5 L547.5,21.5 L551.8,28.2 L553.0,31.5 L554.2,37.2 L554.5,45.0 L553.8,50.0 L551.8,56.0 L548.8,61.2 L544.8,65.8 L539.0,70.0 L535.0,72.0 L527.8,74.0 L497.0,74.2 L496.2,73.5 L496.2,11.0Z M427.5,1.0 L426.8,1.5 L426.8,82.5 L427.2,83.0 L435.2,83.0 L435.8,82.5 L435.8,1.5 L435.2,1.0Z M729.2,0.2 L721.5,0.5 L721.0,1.0 L721.2,83.0 L729.5,83.0 L730.0,82.5 L730.0,0.8Z M124.2,0.2 L123.8,1.2 L124.0,54.2 L125.0,60.0 L127.0,66.2 L130.5,72.0 L135.2,77.0 L140.5,80.8 L147.2,83.5 L156.2,85.0 L165.5,84.5 L172.5,82.5 L179.0,79.0 L184.8,73.8 L188.0,69.2 L190.5,64.0 L192.5,56.5 L193.0,51.5 L192.8,0.5 L184.2,0.2 L183.8,0.8 L183.8,51.5 L183.0,57.2 L181.0,62.8 L177.2,68.2 L171.8,72.8 L166.8,75.0 L158.0,76.2 L150.5,75.0 L143.5,71.8 L139.5,68.0 L135.2,61.2 L133.2,53.2 L133.2,1.0 L132.2,0.2Z M0.5,0.2 L0.0,0.8 L-0.2,28.0 L0.0,82.5 L0.5,83.0 L39.5,83.0 L44.0,82.5 L53.5,79.8 L63.0,74.0 L69.8,66.8 L73.2,61.0 L75.5,55.0 L77.2,47.0 L77.2,36.8 L75.5,28.5 L72.2,20.8 L68.2,15.0 L62.8,9.5 L57.8,6.0 L52.0,3.2 L44.0,1.0 L38.0,0.2Z M9.5,9.2 L37.0,9.0 L42.2,9.8 L49.0,11.8 L53.2,14.0 L61.0,20.8 L63.8,24.8 L66.5,30.8 L68.0,37.2 L68.2,44.2 L66.8,52.0 L63.5,59.2 L59.8,64.2 L56.2,67.5 L48.5,72.0 L40.5,74.0 L9.8,74.2 L9.0,73.8 L9.0,10.0Z M640.2,0.0 L597.5,82.8 L607.2,83.0 L632.2,34.8 L639.8,20.5 L640.8,19.8 L641.8,20.5 L674.0,82.8 L683.8,83.0 L684.2,82.5 L641.5,0.2Z M336.2,-0.5 L292.8,82.5 L293.2,83.0 L302.8,83.0 L303.5,82.2 L319.8,50.2 L335.8,20.0 L336.8,19.2 L337.5,19.8 L369.8,82.2 L370.5,83.0 L380.0,83.0 L380.5,82.5 L351.5,26.8 L337.2,-0.2Z"/></svg>
+    <div class="ld-pct"><i></i><span id="pct">0%</span><i></i></div>
+  </div>
+</div>
+
+<header class="site" id="hdr">
+  <a class="brand" href="#pradzia" aria-label="Du Aidai – pradžia"><svg viewBox="0 0 284 293" aria-hidden="true"><path d="M0,95 L116,34 L116,293 L93,293 L93,109 L33,139 L33,293 L0,293Z"/><path d="M168,0 L284,59 L284,293 L249,293 L249,102 L191,71 L191,293 L168,293Z"/></svg></a>
+  <nav class="main" aria-label="Pagrindinis meniu" id="nav">
+    <span class="bub" id="bub" aria-hidden="true"></span>
+    <a class="cta" href="#rinkis">Rinkis butą</a>
+    <a href="#vieta">Vieta</a>
+    <a href="#pradzia" data-soon="Apie projektą">Apie projektą</a>
+    <a href="#pradzia" data-soon="Galerija">Galerija</a>
+    <a href="#pradzia" data-soon="Kontaktai">Kontaktai</a>
+  </nav>
+  <button class="burger" id="burger" aria-label="Meniu" aria-expanded="false"><span></span></button>
+</header>
+
+<!-- 1. HERO -->
+<section class="view" data-view="pradzia">
+  <div class="hero">
+    <img class="bg" src="img/hero.webp" alt="Trys Du Aidai gyvenamieji namai vakaro saulėje">
+    <div class="hero-c"><svg class="hero-word ghost" viewBox="0 0 730 83" aria-hidden="true"><path d="M487.8,1.2 L487.5,82.8 L528.5,82.8 L539.8,79.8 L546.0,76.5 L549.0,74.2 L554.2,69.0 L559.5,61.0 L561.8,55.2 L563.5,46.5 L563.5,37.8 L561.5,28.2 L558.8,21.8 L553.5,14.5 L549.0,10.2 L544.0,6.8 L534.2,2.8 L524.5,1.2Z M496.8,10.2 L523.5,10.0 L529.2,10.8 L538.0,13.8 L542.2,16.5 L547.5,21.5 L551.8,28.2 L553.0,31.5 L554.2,37.2 L554.5,45.0 L553.8,50.0 L551.8,56.0 L548.8,61.2 L544.8,65.8 L539.0,70.0 L535.0,72.0 L527.8,74.0 L497.0,74.2 L496.2,73.5 L496.2,11.0Z M427.5,1.0 L426.8,1.5 L426.8,82.5 L427.2,83.0 L435.2,83.0 L435.8,82.5 L435.8,1.5 L435.2,1.0Z M729.2,0.2 L721.5,0.5 L721.0,1.0 L721.2,83.0 L729.5,83.0 L730.0,82.5 L730.0,0.8Z M124.2,0.2 L123.8,1.2 L124.0,54.2 L125.0,60.0 L127.0,66.2 L130.5,72.0 L135.2,77.0 L140.5,80.8 L147.2,83.5 L156.2,85.0 L165.5,84.5 L172.5,82.5 L179.0,79.0 L184.8,73.8 L188.0,69.2 L190.5,64.0 L192.5,56.5 L193.0,51.5 L192.8,0.5 L184.2,0.2 L183.8,0.8 L183.8,51.5 L183.0,57.2 L181.0,62.8 L177.2,68.2 L171.8,72.8 L166.8,75.0 L158.0,76.2 L150.5,75.0 L143.5,71.8 L139.5,68.0 L135.2,61.2 L133.2,53.2 L133.2,1.0 L132.2,0.2Z M0.5,0.2 L0.0,0.8 L-0.2,28.0 L0.0,82.5 L0.5,83.0 L39.5,83.0 L44.0,82.5 L53.5,79.8 L63.0,74.0 L69.8,66.8 L73.2,61.0 L75.5,55.0 L77.2,47.0 L77.2,36.8 L75.5,28.5 L72.2,20.8 L68.2,15.0 L62.8,9.5 L57.8,6.0 L52.0,3.2 L44.0,1.0 L38.0,0.2Z M9.5,9.2 L37.0,9.0 L42.2,9.8 L49.0,11.8 L53.2,14.0 L61.0,20.8 L63.8,24.8 L66.5,30.8 L68.0,37.2 L68.2,44.2 L66.8,52.0 L63.5,59.2 L59.8,64.2 L56.2,67.5 L48.5,72.0 L40.5,74.0 L9.8,74.2 L9.0,73.8 L9.0,10.0Z M640.2,0.0 L597.5,82.8 L607.2,83.0 L632.2,34.8 L639.8,20.5 L640.8,19.8 L641.8,20.5 L674.0,82.8 L683.8,83.0 L684.2,82.5 L641.5,0.2Z M336.2,-0.5 L292.8,82.5 L293.2,83.0 L302.8,83.0 L303.5,82.2 L319.8,50.2 L335.8,20.0 L336.8,19.2 L337.5,19.8 L369.8,82.2 L370.5,83.0 L380.0,83.0 L380.5,82.5 L351.5,26.8 L337.2,-0.2Z"/></svg><svg class="hero-word" viewBox="0 0 730 83" role="img" aria-label="DU AIDAI"><path d="M487.8,1.2 L487.5,82.8 L528.5,82.8 L539.8,79.8 L546.0,76.5 L549.0,74.2 L554.2,69.0 L559.5,61.0 L561.8,55.2 L563.5,46.5 L563.5,37.8 L561.5,28.2 L558.8,21.8 L553.5,14.5 L549.0,10.2 L544.0,6.8 L534.2,2.8 L524.5,1.2Z M496.8,10.2 L523.5,10.0 L529.2,10.8 L538.0,13.8 L542.2,16.5 L547.5,21.5 L551.8,28.2 L553.0,31.5 L554.2,37.2 L554.5,45.0 L553.8,50.0 L551.8,56.0 L548.8,61.2 L544.8,65.8 L539.0,70.0 L535.0,72.0 L527.8,74.0 L497.0,74.2 L496.2,73.5 L496.2,11.0Z M427.5,1.0 L426.8,1.5 L426.8,82.5 L427.2,83.0 L435.2,83.0 L435.8,82.5 L435.8,1.5 L435.2,1.0Z M729.2,0.2 L721.5,0.5 L721.0,1.0 L721.2,83.0 L729.5,83.0 L730.0,82.5 L730.0,0.8Z M124.2,0.2 L123.8,1.2 L124.0,54.2 L125.0,60.0 L127.0,66.2 L130.5,72.0 L135.2,77.0 L140.5,80.8 L147.2,83.5 L156.2,85.0 L165.5,84.5 L172.5,82.5 L179.0,79.0 L184.8,73.8 L188.0,69.2 L190.5,64.0 L192.5,56.5 L193.0,51.5 L192.8,0.5 L184.2,0.2 L183.8,0.8 L183.8,51.5 L183.0,57.2 L181.0,62.8 L177.2,68.2 L171.8,72.8 L166.8,75.0 L158.0,76.2 L150.5,75.0 L143.5,71.8 L139.5,68.0 L135.2,61.2 L133.2,53.2 L133.2,1.0 L132.2,0.2Z M0.5,0.2 L0.0,0.8 L-0.2,28.0 L0.0,82.5 L0.5,83.0 L39.5,83.0 L44.0,82.5 L53.5,79.8 L63.0,74.0 L69.8,66.8 L73.2,61.0 L75.5,55.0 L77.2,47.0 L77.2,36.8 L75.5,28.5 L72.2,20.8 L68.2,15.0 L62.8,9.5 L57.8,6.0 L52.0,3.2 L44.0,1.0 L38.0,0.2Z M9.5,9.2 L37.0,9.0 L42.2,9.8 L49.0,11.8 L53.2,14.0 L61.0,20.8 L63.8,24.8 L66.5,30.8 L68.0,37.2 L68.2,44.2 L66.8,52.0 L63.5,59.2 L59.8,64.2 L56.2,67.5 L48.5,72.0 L40.5,74.0 L9.8,74.2 L9.0,73.8 L9.0,10.0Z M640.2,0.0 L597.5,82.8 L607.2,83.0 L632.2,34.8 L639.8,20.5 L640.8,19.8 L641.8,20.5 L674.0,82.8 L683.8,83.0 L684.2,82.5 L641.5,0.2Z M336.2,-0.5 L292.8,82.5 L293.2,83.0 L302.8,83.0 L303.5,82.2 L319.8,50.2 L335.8,20.0 L336.8,19.2 L337.5,19.8 L369.8,82.2 L370.5,83.0 L380.0,83.0 L380.5,82.5 L351.5,26.8 L337.2,-0.2Z"/></svg></div>
+    <div class="hero-foot">
+      <div><div class="k">Gyvenamųjų namų kvartalas</div><div class="v">Kaunas 2027 Q3</div></div>
+      <div class="hero-facts">
+        <div><div class="k">Namai</div><div class="v">2</div></div>
+        <div><div class="k">Butai</div><div class="v" id="hfApts">96</div></div>
+        <div><div class="k">Laisvi</div><div class="v" id="hfFree">–</div></div>
+      </div>
+    </div>
+  </div>
+  <section class="loc" id="vieta" aria-labelledby="locTitle">
+    <div class="map">
+      <svg viewBox="0 0 1076 743" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Du Aidai vieta Kauno Žaliakalnyje">
+        <defs><pattern id="dots" width="7" height="7" patternUnits="userSpaceOnUse"><rect width="7" height="7" fill="#e2e6dc"/><circle cx="2" cy="2" r="1.1" fill="#1f4d3a" fill-opacity=".55"/><circle cx="5.5" cy="5.5" r="1.1" fill="#1f4d3a" fill-opacity=".4"/></pattern></defs>
+        <path class="m-campus" d="M1075,629 1067,628 1055,606 1048,606 1023,621 1006,620 982,574 964,574 962,572 962,558 969,556 969,550 959,530 943,505 930,504 912,471 891,442 876,444 817,465 816,469 802,469 699,499 681,499 647,469 637,469 636,461 627,460 557,543 555,555 545,557 497,614 497,620 510,631 525,634 525,645 530,647 532,658 533,689 553,689 560,694 568,696 591,694 734,649 737,637 760,635 787,636 793,630 835,617 852,617 853,623 878,632 889,632 894,635 921,635 922,655 934,677 941,678 944,681 944,708 925,724 922,734 913,734 903,739 903,742 1075,742ZM531,625 543,616 557,616 561,628 566,630 566,644 556,645 553,648 533,646Z"/>
+        <path class="m-park" d="M940,698 935,694 934,682 926,678 926,672 913,648 913,641 896,640 842,621 841,619 833,619 805,628 803,635 794,640 747,640 739,649 587,696 566,697 551,690 527,691 526,678 521,677 512,685 483,694 470,695 454,701 440,703 429,708 426,712 427,742 909,742 909,735 919,730 921,722 939,708ZM983,378 977,382 977,387 993,406 996,413 996,442 991,457 991,465 1019,512 1019,527 1014,546 987,556 985,567 1015,622 1019,622 1043,608 1057,608 1071,632 1075,635 1075,444 1067,444 1048,438 1037,427 1034,420 1023,407 1005,399 988,378ZM107,178 91,265 91,273 94,276 96,290 109,305 151,339 157,339 158,344 228,402 241,418 260,432 267,433 343,400 364,396 391,395 466,361 464,350 450,322 450,314 432,292 432,287 409,242 379,212 309,177 272,149 268,149 229,188 207,188 196,180 174,177Z"/>
+        <path class="m-road" fill-rule="evenodd" d="M312,742 351,742 351,740 349,738 341,736 328,735 316,739ZM945,704 937,713 924,722 921,728 921,736 925,740 925,742 930,742 923,735 924,726 930,720 942,712ZM195,681 195,683 198,683 234,670 238,670 252,706 254,707 254,703 242,673 242,668 247,664 239,665 233,661 232,669ZM386,617 376,619 274,655 269,655 269,657 275,657 331,637 338,637 352,677 354,677 350,662 341,639 341,635 343,633 383,620ZM255,554 250,553 130,593 129,596 150,589 156,589 158,591 164,614 166,614 165,606 160,592 160,587 162,585ZM319,539 330,579 332,579 322,541ZM341,532 342,542 370,569 394,587 400,593 405,604 408,606 401,590 374,569 344,541 343,534ZM258,441 243,445 161,475 132,484 130,487 132,488 140,484 145,484 147,486 157,517 160,520 160,516 149,487 149,482 151,480 258,443ZM558,438 556,438 546,448 521,459 521,461 526,460 537,454 545,453 553,466 554,464 550,457 549,449 557,442ZM999,263 999,265 1056,323 1059,323 1001,263ZM0,240 4,227 12,221 42,222 42,220 10,219 4,224 0,225ZM1004,189 1003,180 985,165 985,167 1001,181 1001,189 966,222 960,222 924,186 919,185 920,188 922,188 965,231 966,226ZM670,185 671,191 674,191 674,184 704,143 706,141 711,141 765,184 769,189 771,188 770,185 710,137 706,137ZM171,126 169,126 167,153 168,174 170,172 169,157ZM395,77 392,79 387,89 369,106 369,108 371,108 389,91ZM1075,5 1054,3 948,5 946,6 946,8 951,9 954,7 1060,6 1075,8ZM622,0 620,0 620,4 632,53 632,59 629,61 606,67 588,70 585,64 574,13 572,12 571,14 584,66 584,73 550,90 545,89 530,20 528,20 528,26 543,88 543,94 527,109 530,109 544,96 563,85 593,72 600,72 613,119 618,119 618,116 615,114 612,106 612,102 604,76 604,70 627,63 647,60 646,58 635,58ZM8,94 3,107 0,108 0,117 2,115 9,97 13,93 80,102 81,109 72,147 73,150 76,143 84,104 89,103 103,106 111,106 112,109 101,174 69,170 0,145 0,148 9,150 71,173 101,177 92,243 86,273 80,276 78,281 66,282 61,285 0,295 0,305 77,292 82,293 72,349 67,350 59,348 42,347 42,349 69,352 70,360 67,373 63,375 66,377 66,382 62,402 60,404 44,409 44,411 49,411 53,408 59,408 60,424 37,516 0,529 0,531 3,531 30,521 35,522 16,651 9,652 0,650 0,655 14,657 3,732 0,742 10,742 22,661 24,659 37,661 78,677 123,705 126,709 129,709 138,702 143,701 142,699 133,702 126,702 82,674 39,657 26,655 24,653 27,631 35,627 40,627 40,625 38,624 29,626 28,623 40,546 44,532 44,525 47,521 47,516 49,514 61,512 62,510 49,510 48,504 69,424 85,425 91,427 91,447 88,460 89,462 91,461 94,442 93,423 100,388 97,389 92,421 90,423 71,422 70,414 89,311 93,297 95,297 107,310 152,347 152,352 149,361 149,389 147,416 148,422 150,421 152,358 155,352 159,352 229,410 233,411 286,455 291,462 355,514 355,518 347,521 346,523 350,523 357,520 364,521 480,619 480,622 461,640 446,647 431,652 431,654 450,648 464,641 478,626 482,624 485,624 514,652 517,671 512,676 477,687 475,691 472,693 448,696 421,713 418,712 417,707 413,707 389,715 389,717 391,718 390,727 392,728 392,730 378,739 376,742 407,742 405,741 405,735 408,732 410,732 411,729 413,729 415,726 451,704 519,694 523,695 521,742 538,742 533,704 533,687 531,673 533,664 529,650 523,644 523,640 531,633 542,633 543,635 564,640 564,647 570,664 572,664 572,656 567,648 568,635 561,630 558,621 558,614 571,610 572,607 552,612 520,636 513,635 496,620 496,616 549,555 552,555 555,558 561,560 584,535 584,533 582,533 561,556 556,556 553,552 554,548 631,459 634,459 639,462 640,467 594,519 594,522 601,516 629,484 634,484 644,493 644,496 648,496 654,502 656,502 656,500 635,482 635,477 643,468 647,468 683,500 687,501 690,504 691,512 695,511 694,501 697,499 799,470 812,468 837,519 838,543 871,610 878,614 878,608 884,604 884,599 880,599 876,606 871,605 841,544 839,518 816,471 816,466 862,449 883,443 891,439 895,439 901,447 968,556 968,559 966,561 948,570 938,570 935,573 920,573 919,583 910,587 909,593 914,595 920,594 920,586 930,581 934,574 944,576 948,572 957,568 962,568 968,578 969,571 964,570 964,565 968,562 971,562 1018,652 1017,655 1009,653 1016,668 1017,667 1014,662 1014,657 1020,656 1064,742 1075,742 1075,733 1072,732 1029,649 983,565 982,560 980,559 966,530 937,486 937,482 943,478 949,478 955,484 976,520 984,520 992,518 993,516 989,515 984,517 977,517 956,480 948,475 933,478 926,470 907,441 907,433 910,428 916,423 1026,362 1033,361 1035,357 1075,336 1075,326 1064,332 1062,332 1061,330 1048,331 1043,335 1035,335 1034,342 1021,351 1009,354 993,342 993,336 989,333 990,321 999,309 999,306 996,307 985,323 985,328 976,330 918,289 884,267 885,260 899,241 899,239 897,239 881,262 876,262 871,258 868,258 868,261 871,261 877,266 877,270 852,300 848,300 840,293 837,294 861,313 865,314 856,306 856,301 881,270 885,270 980,336 986,336 988,342 1005,354 1004,359 965,386 959,386 942,369 935,364 924,365 918,369 914,374 918,373 927,366 934,366 942,372 956,387 956,391 907,419 899,421 892,418 877,406 830,377 802,363 780,348 781,343 808,312 809,309 807,309 777,345 773,344 745,325 745,322 816,235 821,230 829,232 829,230 825,228 827,222 885,155 891,154 887,150 892,109 899,107 899,104 893,100 895,85 897,83 1036,81 1038,84 1038,99 1040,95 1041,86 1037,78 1015,79 1013,77 1013,74 1009,73 1005,79 897,81 896,73 904,10 908,8 905,6 905,0 894,0 892,7 876,8 874,6 874,0 872,0 871,8 846,11 834,11 832,8 831,0 829,0 830,10 834,14 869,10 892,11 889,51 882,110 880,115 879,132 877,137 873,137 864,130 814,99 763,71 725,58 712,57 711,38 713,36 752,25 794,5 800,0 794,0 793,3 748,24 709,35 710,55 702,56 690,54 691,57 699,57 710,60 724,60 753,69 782,83 810,100 810,105 789,134 791,134 813,105 819,105 866,134 875,142 875,147 873,151 816,219 812,219 789,200 782,200 783,202 790,204 812,222 812,224 736,317 733,318 672,283 669,280 670,274 667,270 643,257 637,257 635,260 632,260 567,222 567,220 614,166 614,163 610,166 565,219 562,219 491,149 491,147 511,126 511,121 506,122 506,128 490,145 487,145 397,56 353,2 353,0 340,0 347,14 357,26 363,30 388,62 480,152 480,155 469,167 467,172 462,173 440,155 431,152 418,152 406,141 404,142 415,153 415,158 411,165 404,168 393,168 349,145 350,140 367,132 368,130 365,130 347,139 345,142 345,146 394,171 406,170 414,166 419,155 433,155 439,157 459,174 466,174 467,176 469,176 472,174 472,171 483,158 486,158 555,226 555,231 514,275 514,277 516,277 556,232 562,231 617,265 616,273 614,274 605,288 608,296 632,322 677,366 678,364 639,326 609,293 609,286 620,270 628,271 672,297 676,298 726,326 726,329 632,442 628,446 625,446 548,417 473,357 465,339 465,335 495,302 508,298 524,298 548,317 550,317 550,315 525,296 510,295 494,300 466,330 461,330 419,239 419,235 429,223 428,219 420,226 411,239 412,247 425,271 464,356 466,363 415,388 385,400 387,401 415,390 466,365 470,365 503,392 503,396 446,458 446,460 449,459 506,397 510,397 543,424 606,447 613,452 619,453 619,457 487,610 485,610 274,431 157,336 101,288 95,279 109,179 113,177 110,175 122,94 124,92 204,92 209,96 209,109 211,108 211,101 216,100 235,120 234,140 236,141 237,118 220,100 203,89 177,88 177,82 184,61 195,49 219,41 231,42 239,45 255,59 260,61 278,80 277,87 267,96 268,103 300,133 314,140 357,100 358,96 315,136 310,136 299,129 270,102 270,96 279,88 286,79 296,72 302,72 312,77 324,77 333,87 335,87 335,85 326,76 326,71 356,41 359,35 318,75 313,75 304,70 295,70 284,78 280,78 266,64 266,59 297,24 294,23 263,58 258,58 240,43 227,39 217,39 194,47 188,53 181,66 174,89 125,91 124,83 139,4 139,0 131,0 125,34 123,37 102,31 97,31 84,37 49,38 85,39 96,34 104,34 118,38 123,41 118,68 84,63 75,63 76,65 112,69 118,71 112,104 12,90ZM516,683 520,681 521,685 517,686ZM550,621 555,620 556,625 551,626ZM635,457 635,454 638,450 651,440 654,431 736,333 743,336 821,388 821,392 825,390 888,432 888,435 881,441 869,444 823,461 691,499 685,498 645,463ZM638,261 644,260 666,272 667,277 664,278 639,264Z"/>
+        <rect class="m-tint" width="1076" height="743"/>
+        <g aria-hidden="true">
+          <text class="m-lbl" transform="translate(212,392) rotate(40)">Radvilėnų pl.</text>
+          <text class="m-lbl" transform="translate(782,268) rotate(-49)">A. Baranausko g.</text>
+          <text class="m-lbl" transform="translate(612,250) rotate(30)">Studentų g.</text>
+          <text class="m-lbl" transform="translate(478,372) rotate(39)">B. Sruogos g.</text>
+          <text class="m-lbl" transform="translate(56,520) rotate(-79)">J. Basanavičiaus al.</text>
+          <text class="m-lbl" transform="translate(395,722) rotate(-14)">Vydūno al.</text>
+          <text class="m-lbl" transform="translate(918,470) rotate(-28)">Rytų g.</text>
+          <text class="m-lbl big" x="745" y="560">KTU miestelis</text>
+          <text class="m-lbl big" x="196" y="250">Žaliakalnis</text>
+        </g>
+        <mask id="rmask" maskUnits="userSpaceOnUse" x="0" y="0" width="1076" height="743"><path id="rmp" pathLength="1" d=""/></mask>
+        <g mask="url(#rmask)" aria-hidden="true"><path class="route-bg" id="routeBg" d=""/><path class="route" id="route" d=""/></g>
+        <g class="m-home" transform="translate(571,395)">
+          <circle class="pulse" r="30"/>
+          <rect x="-26" y="-26" width="52" height="52" rx="26"/>
+          <g transform="translate(-13,-13.5) scale(.0921)"><path d="M0,95 L116,34 L116,293 L93,293 L93,109 L33,139 L33,293 L0,293Z"/><path d="M168,0 L284,59 L284,293 L249,293 L249,102 L191,71 L191,293 L168,293Z"/></g>
+          <text x="38" y="5">DU AIDAI</text>
+        </g>
+        <g id="ptG"></g>
+      </svg>
+      <div class="pills" role="group" aria-label="Taškų kategorijos" id="pills"></div>
+    </div>
+    <div class="loc-txt">
+      <div><div class="eyebrow">Vieta · Žaliakalnis, Kaunas</div><h2 id="locTitle">Transportas</h2></div>
+      <p id="locIntro"></p>
+      <ol class="plist" id="plist"></ol>
+    </div>
+  </section>
+  <footer class="foot">
+    <div class="foot-in">
+      <svg viewBox="0 0 730 83" class="foot-word" aria-hidden="true"><path d="M487.8,1.2 L487.5,82.8 L528.5,82.8 L539.8,79.8 L546.0,76.5 L549.0,74.2 L554.2,69.0 L559.5,61.0 L561.8,55.2 L563.5,46.5 L563.5,37.8 L561.5,28.2 L558.8,21.8 L553.5,14.5 L549.0,10.2 L544.0,6.8 L534.2,2.8 L524.5,1.2Z M496.8,10.2 L523.5,10.0 L529.2,10.8 L538.0,13.8 L542.2,16.5 L547.5,21.5 L551.8,28.2 L553.0,31.5 L554.2,37.2 L554.5,45.0 L553.8,50.0 L551.8,56.0 L548.8,61.2 L544.8,65.8 L539.0,70.0 L535.0,72.0 L527.8,74.0 L497.0,74.2 L496.2,73.5 L496.2,11.0Z M427.5,1.0 L426.8,1.5 L426.8,82.5 L427.2,83.0 L435.2,83.0 L435.8,82.5 L435.8,1.5 L435.2,1.0Z M729.2,0.2 L721.5,0.5 L721.0,1.0 L721.2,83.0 L729.5,83.0 L730.0,82.5 L730.0,0.8Z M124.2,0.2 L123.8,1.2 L124.0,54.2 L125.0,60.0 L127.0,66.2 L130.5,72.0 L135.2,77.0 L140.5,80.8 L147.2,83.5 L156.2,85.0 L165.5,84.5 L172.5,82.5 L179.0,79.0 L184.8,73.8 L188.0,69.2 L190.5,64.0 L192.5,56.5 L193.0,51.5 L192.8,0.5 L184.2,0.2 L183.8,0.8 L183.8,51.5 L183.0,57.2 L181.0,62.8 L177.2,68.2 L171.8,72.8 L166.8,75.0 L158.0,76.2 L150.5,75.0 L143.5,71.8 L139.5,68.0 L135.2,61.2 L133.2,53.2 L133.2,1.0 L132.2,0.2Z M0.5,0.2 L0.0,0.8 L-0.2,28.0 L0.0,82.5 L0.5,83.0 L39.5,83.0 L44.0,82.5 L53.5,79.8 L63.0,74.0 L69.8,66.8 L73.2,61.0 L75.5,55.0 L77.2,47.0 L77.2,36.8 L75.5,28.5 L72.2,20.8 L68.2,15.0 L62.8,9.5 L57.8,6.0 L52.0,3.2 L44.0,1.0 L38.0,0.2Z M9.5,9.2 L37.0,9.0 L42.2,9.8 L49.0,11.8 L53.2,14.0 L61.0,20.8 L63.8,24.8 L66.5,30.8 L68.0,37.2 L68.2,44.2 L66.8,52.0 L63.5,59.2 L59.8,64.2 L56.2,67.5 L48.5,72.0 L40.5,74.0 L9.8,74.2 L9.0,73.8 L9.0,10.0Z M640.2,0.0 L597.5,82.8 L607.2,83.0 L632.2,34.8 L639.8,20.5 L640.8,19.8 L641.8,20.5 L674.0,82.8 L683.8,83.0 L684.2,82.5 L641.5,0.2Z M336.2,-0.5 L292.8,82.5 L293.2,83.0 L302.8,83.0 L303.5,82.2 L319.8,50.2 L335.8,20.0 L336.8,19.2 L337.5,19.8 L369.8,82.2 L370.5,83.0 L380.0,83.0 L380.5,82.5 L351.5,26.8 L337.2,-0.2Z"/></svg>
+      <div class="foot-cols">
+        <div><div class="eyebrow">Vieta</div><div>Žaliakalnis, Kaunas</div></div>
+        <div><div class="eyebrow">Statybų pabaiga</div><div>2027 Q3</div></div>
+        <div><a class="cta-line" href="#rinkis">Rinkis butą →</a></div>
+      </div>
+    </div>
+  </footer>
+</section>
+
+<!-- 2. BUILDING PICKER -->
+<section class="view" data-view="rinkis">
+  <div class="pick" id="pick">
+    <svg viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice" id="pickSvg">
+      <image href="img/namai.webp" width="1920" height="1080"/>
+      <g id="floorG"></g>
+      <a class="pinA" href="#aukstas-A-5" id="pinA" aria-label="Namas A"><circle class="pin" cx="490" cy="302" r="34"/><circle class="pin-ring" cx="490" cy="302" r="38"/></a>
+      <a class="pinA" href="#aukstas-B-5" id="pinB" aria-label="Namas B"><circle class="pin" cx="1407" cy="292" r="34"/><circle class="pin-ring" cx="1407" cy="292" r="38"/></a>
+    </svg>
+  </div>
+  <div class="pick-ui"><span class="chip"><b>Rinkis aukštą</b> · užveskite pelę ant namo aukšto</span></div>
+  <div class="pick-list" id="pickList"></div>
+</section>
+
+<!-- 3. FLOOR PLAN -->
+<section class="view" data-view="aukstas">
+  <div class="page"><div class="flp">
+    <div class="fl-top">
+      <div class="fl-ttl"><div class="eyebrow" id="flEyebrow">Namas A</div><h1 id="flTitle">5 aukštas</h1></div>
+      <div class="seg"><div class="eyebrow">Namas</div><div class="seg-row" id="segB"></div></div>
+      <div class="seg"><div class="eyebrow">Aukštas</div><div class="seg-row" id="segF"></div></div>
+      <div class="legend"><span><i class="sw"></i>Laisvas</span><span><i class="sw r"></i>Rezervuotas</span></div>
+      <div class="fl-back"><a class="back-cta" href="#rinkis">← Visi namai</a></div>
+    </div>
+    <div class="fl-body">
+    <aside class="fl-side">
+      <div class="alist" id="alist"></div>
+    </aside>
+    <div class="planbox fl-plan">
+      <svg viewBox="0 0 1920 1080" id="planSvg" role="group" aria-label="Aukšto planas">
+        <image href="img/aukstas.webp" width="1920" height="1080"/>
+        <g id="aptG"></g>
+      </svg>
+    </div>
+    </div>
+  </div></div>
+</section>
+
+<!-- 4. APARTMENT -->
+<section class="view apt" data-view="butas">
+  <div class="page"><div class="wrap">
+    <div class="planbox"><img src="img/butas.webp" alt="" id="aptImg" style="display:block;width:100%;height:auto"></div>
+    <aside class="side">
+      <a class="back-cta" id="aptBack" href="#rinkis">← Aukšto planas</a>
+      <div><div class="eyebrow" id="aptEyebrow"></div><h1 id="aptTitle"></h1></div>
+      <span class="status" id="aptStatus"></span>
+      <div class="specs" id="aptSpecs"></div>
+      <div><div class="eyebrow" style="margin-bottom:6px">Patalpos</div><table class="rooms" id="aptRooms"></table></div>
+      <button class="btn" id="aptAsk" type="button">Teirautis dėl buto</button>
+      <div class="pn"><a class="btn ghost" id="aptPrev" href="#rinkis">← Ankstesnis</a><a class="btn ghost" id="aptNext" href="#rinkis">Kitas →</a></div>
+    </aside>
+  </div></div>
+</section>
+
+
+<div class="modal" id="modal" hidden>
+  <div class="modal-bg" data-close></div>
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+    <button class="modal-x" type="button" aria-label="Uždaryti" data-close>×</button>
+    <div id="mForm">
+      <div class="eyebrow" id="mApt">Butas A-505</div>
+      <h2 id="mTitle">Teirautis dėl buto</h2>
+      <form id="askForm" novalidate>
+        <div class="f2">
+          <label class="fld" for="fName"><span>Vardas</span><input id="fName" name="vardas" type="text" autocomplete="name" required></label>
+          <label class="fld" for="fPhone"><span>Telefono numeris</span><input id="fPhone" name="telefonas" type="tel" autocomplete="tel" placeholder="+370"></label>
+        </div>
+        <label class="fld" for="fEmail"><span>El. paštas</span><input id="fEmail" name="el_pastas" type="email" autocomplete="email" required></label>
+        <label class="fld" for="fMsg"><span>Komentaras</span><textarea id="fMsg" name="komentaras" rows="3"></textarea></label>
+        <p class="ferr" id="fErr" hidden></p>
+        <button class="btn" type="submit">Siųsti užklausą</button>
+      </form>
+    </div>
+    <div id="mDone" hidden class="mdone">
+      <div class="okc" aria-hidden="true">✓</div>
+      <h2>Ačiū, užklausa gauta</h2>
+      <p>Susisieksime su jumis artimiausiu metu.</p>
+    </div>
+    <div class="broker">
+      <img src="img/broker.jpg" alt="Margarita Kazakevičienė" width="64" height="64">
+      <div><span>Projektui vadovauja nekilnojamojo turto brokerė</span><b>Margarita Kazakevičienė</b></div>
+    </div>
+  </div>
+</div>
+<div class="tip" id="tip" aria-hidden="true"></div>
+<div class="toast" id="toast" role="status"></div>
+
+<!-- Kontūrai: tas pats JSON formatas, kaip „Kontūrų redaktoriaus“ eksporte -->
+<script type="application/json" id="contours">{"pastatai": {"image": {"name": "Du Aidai · namai Kaunas", "w": 1920, "h": 1080}, "shapes": [{"name": "A · 5 aukštas", "href": "A-5", "closed": true, "pts": [[128.0, 372.0], [136.7, 373.4], [136.1, 352.1], [428.0, 352.5], [434.7, 354.9], [442.2, 354.7], [532.0, 354.1], [571.2, 354.2], [562.3, 345.1], [873.7, 343.2], [885.7, 367.7], [891.2, 372.5], [913.8, 425.4], [912.3, 492.1], [891.6, 453.1], [535.6, 452.9], [450.0, 454.5], [128.0, 454.5]]}, {"name": "A · 4 aukštas", "href": "A-4", "closed": true, "pts": [[128.0, 454.5], [450.0, 454.5], [534.4, 453.9], [892.5, 456.0], [911.6, 490.5], [912.0, 542.5], [889.9, 532.8], [533.3, 536.9], [450.0, 537.0], [128.0, 537.0]]}, {"name": "A · 3 aukštas", "href": "A-3", "closed": true, "pts": [[128.0, 537.0], [450.0, 537.0], [535.9, 536.4], [889.4, 537.4], [912.0, 542.5], [912.0, 621.2], [890.0, 617.0], [535.0, 617.0], [450.0, 619.5], [128.0, 619.5]]}, {"name": "A · 2 aukštas", "href": "A-2", "closed": true, "pts": [[128.0, 619.5], [450.0, 619.5], [535.9, 619.4], [890.0, 617.0], [912.0, 621.2], [912.0, 700.0], [890.0, 702.0], [535.0, 702.0], [450.0, 702.0], [128.0, 702.0]]}, {"name": "B · 5 aukštas", "href": "B-5", "closed": true, "pts": [[1041.8, 364.8], [1062.5, 360.5], [1067.2, 334.2], [1339.8, 332.0], [1334.7, 344.6], [1468.7, 344.6], [1488.2, 332.3], [1776.8, 328.7], [1775.9, 352.7], [1796.1, 355.1], [1800.2, 358.0], [1800.0, 441.8], [1455.0, 441.8], [1360.0, 444.0], [1035.4, 448.0], [1035.4, 423.6]]}, {"name": "B · 4 aukštas", "href": "B-4", "closed": true, "pts": [[1038.0, 449.2], [1360.0, 444.0], [1455.0, 441.8], [1800.0, 441.8], [1800.0, 528.5], [1455.0, 528.5], [1360.0, 530.0], [1038.0, 533.5]]}, {"name": "B · 3 aukštas", "href": "B-3", "closed": true, "pts": [[1038.0, 533.5], [1360.0, 530.0], [1455.0, 528.5], [1800.0, 528.5], [1800.0, 615.2], [1455.0, 615.2], [1360.0, 616.0], [1038.0, 617.8]]}, {"name": "B · 2 aukštas", "href": "B-2", "closed": true, "pts": [[1038.0, 617.8], [1360.0, 616.0], [1455.0, 615.2], [1800.0, 615.2], [1800.0, 702.0], [1455.0, 702.0], [1360.0, 702.0], [1038.0, 702.0]]}]}, "aukstas": {"image": {"name": "Du Aidai · aukšto planas", "w": 1920, "h": 1080}, "shapes": [{"name": "Butas 01", "href": "01", "closed": true, "pts": [[211.0, 106.9], [649.6, 102.8], [609.8, 397.5], [508.4, 394.7], [502.9, 370.1], [120.5, 365.9], [190.0, 170.0]]}, {"name": "Butas 02", "href": "02", "closed": true, "pts": [[655.1, 101.4], [1000.0, 105.0], [1000.0, 400.0], [613.9, 402.9]]}, {"name": "Butas 03", "href": "03", "closed": true, "pts": [[990.8, 95.9], [1380.0, 100.0], [1396.5, 293.3], [1184.1, 297.4], [1197.8, 411.2], [1000.0, 410.0]]}, {"name": "Butas 04", "href": "04", "closed": true, "pts": [[1366.4, 105.5], [1683.0, 104.2], [1766.6, 357.7], [1417.1, 370.1], [1406.1, 412.5], [1196.4, 411.2], [1184.1, 293.3], [1393.8, 290.6]]}, {"name": "Butas 05", "href": "05", "closed": true, "pts": [[113.7, 375.5], [492.0, 375.5], [482.4, 448.2], [433.0, 452.3], [387.8, 777.1], [372.7, 803.1], [355.0, 888.0], [135.0, 888.0], [154.8, 789.4], [116.4, 786.7], [52.0, 770.3], [28.7, 731.9], [30.1, 685.3], [35.6, 596.2]]}, {"name": "Butas 06", "href": "06", "closed": true, "pts": [[434.4, 453.7], [807.2, 456.4], [788.0, 781.2], [759.2, 779.8], [752.4, 800.4], [745.0, 885.0], [535.0, 885.0], [539.9, 794.9], [390.5, 797.7]]}, {"name": "Butas 07", "href": "07", "closed": true, "pts": [[1071.7, 450.9], [1443.1, 444.1], [1487.0, 699.0], [1514.4, 882.6], [1377.3, 890.9], [1385.0, 995.0], [1160.0, 995.0], [1158.0, 886.8], [1081.3, 888.1]]}, {"name": "Butas 08", "href": "08", "closed": true, "pts": [[1422.6, 376.9], [1795.4, 370.1], [1895.4, 683.9], [1872.1, 699.0], [1887.2, 737.4], [1890.0, 780.0], [1888.6, 812.7], [1877.6, 842.9], [1830.0, 880.0], [1770.7, 889.5], [1794.0, 977.2], [1773.4, 993.7], [1561.0, 989.5], [1543.2, 907.3], [1554.1, 885.4], [1506.2, 881.3], [1502.1, 831.9]]}]}}</script>
+<script>
+(()=>{
+const $=id=>document.getElementById(id);
+const NS="http://www.w3.org/2000/svg";
+const C=JSON.parse($("contours").textContent);
+const fmtN=n=>n.toLocaleString("lt-LT",{minimumFractionDigits:1,maximumFractionDigits:1});
+const fmtP=n=>n.toLocaleString("lt-LT").replace(/,/g," ")+" €";
+
+/* ---------- data ---------- */
+const BUILDINGS=["A","B"], FLOORS=[5,4,3,2];
+const TYPES=[
+ {k:3,bal:7.2, r:[["Svetainė su virtuve",31.2],["Miegamasis",14.6],["Miegamasis",12.1],["Vonios kambarys",6.3],["Prieškambaris",8.4],["Sandėliukas",5.8]]},
+ {k:2,bal:6.0, r:[["Svetainė su virtuve",24.8],["Miegamasis",13.2],["Vonios kambarys",5.4],["Prieškambaris",9.2]]},
+ {k:2,bal:6.0, r:[["Svetainė su virtuve",25.6],["Miegamasis",13.4],["Vonios kambarys",5.6],["Prieškambaris",9.5]]},
+ {k:2,bal:8.5, r:[["Svetainė su virtuve",29.4],["Miegamasis",14.8],["Vonios kambarys",6.1],["Prieškambaris",11.0]]},
+ {k:3,bal:9.4, r:[["Svetainė su virtuve",30.1],["Miegamasis",13.8],["Miegamasis",11.6],["Vonios kambarys",6.2],["Prieškambaris",8.9],["Sandėliukas",4.2]]},
+ {k:2,bal:10.1,r:[["Svetainė su virtuve",27.3],["Miegamasis",13.6],["Vonios kambarys",5.9],["Prieškambaris",11.4]]},
+ {k:2,bal:11.2,r:[["Svetainė su virtuve",28.2],["Miegamasis",14.1],["Vonios kambarys",6.0],["Prieškambaris",11.4]]},
+ {k:3,bal:10.6,r:[["Svetainė su virtuve",31.4],["Miegamasis",14.2],["Miegamasis",11.9],["Vonios kambarys",6.4],["Prieškambaris",8.1],["Sandėliukas",4.5]]}
+];
+function hash(s){let h=2166136261;for(const c of s){h^=c.charCodeAt(0);h=Math.imul(h,16777619)}return (h>>>0)/4294967295}
+const APTS={};
+BUILDINGS.forEach((b,bi)=>FLOORS.forEach(f=>TYPES.forEach((t,i)=>{
+  const pos=String(i+1).padStart(2,"0"), id=b+f+pos;
+  const area=Math.round(t.r.reduce((a,x)=>a+x[1],0)*10)/10;
+  const price=Math.round(area*(2380+f*70+bi*60)/100)*100;
+  APTS[id]={id,b,f,pos,idx:i,t,area,price,res:hash(id)<0.27};
+})));
+const floorApts=(b,f)=>TYPES.map((_,i)=>APTS[b+f+String(i+1).padStart(2,"0")]);
+BUILDINGS.forEach(b=>FLOORS.forEach(f=>{ // kiekviename aukšte bent 1 rezervuotas ir bent 1 laisvas
+  const l=floorApts(b,f).sort((x,y)=>hash(x.id)-hash(y.id));
+  if(!l.some(a=>a.res)) l[0].res=true;
+  if(l.every(a=>a.res)) l[l.length-1].res=false;
+}));
+const all=Object.values(APTS);
+$("hfApts").textContent=all.length; $("hfFree").textContent=all.filter(a=>!a.res).length;
+
+/* ---------- tooltip ---------- */
+const tip=$("tip");
+function floorTip(b,f){
+  const a=floorApts(b,f), r=a.filter(x=>x.res).length, fr=a.length-r;
+  tip.className="tip";
+  tip.innerHTML=`<div class="tip-n"><b>${f}</b><span>aukštas</span></div><div class="tip-b"><span class="tip-sub">Namas ${b} · Du Aidai</span>
+  <div class="tip-st"><div><b class="c-free">${fr}</b><span>Laisvi</span></div><div><b class="c-res">${r}</b><span>Rezervuoti</span></div></div>
+  <div class="tip-bar"><i style="flex:${fr}"></i><i style="flex:${r}"></i></div></div>`;
+}
+function aptTip(a){
+  tip.className="tip"+(a.res?" res":"");
+  tip.innerHTML=`<div class="tip-n sm"><b>${a.f}${a.pos}</b><span>butas</span></div><div class="tip-b"><span class="tip-sub">Namas ${a.b} · ${a.f} aukštas</span>
+  <div class="tip-st"><div><b>${a.t.k}</b><span>Kambariai</span></div><div><b>${fmtN(a.area)}<sup class="u">m²</sup></b><span>Plotas</span></div></div>
+  <div class="tip-stat">${a.res?'<i class="dot r"></i><span class="c-res">Rezervuotas</span>':'<i class="dot"></i><span class="c-free">Laisvas</span><span style="margin-left:auto">'+fmtP(a.price)+'</span>'}</div></div>`;
+}
+function bldgTip(b){
+  const a=all.filter(x=>x.b===b), r=a.filter(x=>x.res).length, fr=a.length-r;
+  tip.className="tip";
+  tip.innerHTML=`<div class="tip-n"><b>${b}</b><span>namas</span></div><div class="tip-b"><span class="tip-sub">${FLOORS.length} aukštai · ${a.length} butai</span>
+  <div class="tip-st"><div><b class="c-free">${fr}</b><span>Laisvi</span></div><div><b class="c-res">${r}</b><span>Rezervuoti</span></div></div>
+  <div class="tip-bar"><i style="flex:${fr}"></i><i style="flex:${r}"></i></div></div>`;
+}
+function placeTip(x,y){
+  const w=tip.offsetWidth||276,h=tip.offsetHeight||100, W=innerWidth,H=innerHeight;
+  let l=x+22,t=y+22; if(l+w>W-12) l=x-w-22; if(t+h>H-12) t=y-h-22;
+  tip.style.left=Math.max(12,l)+"px"; tip.style.top=Math.max(12,t)+"px"; tip.classList.add("on");
+}
+const hideTip=()=>tip.classList.remove("on");
+function placeAt(el){ const r=el.getBoundingClientRect(); placeTip(r.left+r.width*.6, r.top+r.height*.3); }
+const pathD=pts=>"M"+pts.map(p=>p[0]+","+p[1]).join(" L")+" Z";
+function bindHover(a,show){
+  a.addEventListener("pointermove",e=>{ if(e.pointerType==="touch") return; show(); placeTip(e.clientX,e.clientY); });
+  a.addEventListener("pointerleave",hideTip);
+  a.addEventListener("focus",()=>{ show(); placeAt(a); });
+  a.addEventListener("blur",hideTip);
+}
+
+/* ---------- picker: floors ---------- */
+const floorG=$("floorG");
+C.pastatai.shapes.filter(s=>s.closed&&s.pts.length>2).forEach(s=>{
+  const [b,f]=s.href.split("-"); if(!b||!f) return;
+  const a=document.createElementNS(NS,"a"); a.setAttribute("href","#aukstas-"+b+"-"+f); a.setAttribute("class","fl"); a.setAttribute("aria-label","Namas "+b+", "+f+" aukštas");
+  const p=document.createElementNS(NS,"path"); p.setAttribute("d",pathD(s.pts)); a.appendChild(p);
+  bindHover(a,()=>floorTip(b,+f)); floorG.appendChild(a);
+});
+
+bindHover($("pinA"),()=>bldgTip("A")); bindHover($("pinB"),()=>bldgTip("B"));
+
+$("pickList").innerHTML=BUILDINGS.map(b=>{
+  const ab=all.filter(x=>x.b===b);
+  return `<div class="pl-b"><h3>Namas ${b}<span>${ab.filter(x=>!x.res).length} laisvi iš ${ab.length}</span></h3>`+FLOORS.map(f=>{
+    const l=floorApts(b,f), r=l.filter(x=>x.res).length;
+    return `<a href="#aukstas-${b}-${f}"><span>${f} aukštas</span><span class="st"><i class="dot"></i>${l.length-r}<i class="dot r" style="margin-left:8px"></i>${r}</span><span class="go" aria-hidden="true">→</span></a>`;
+  }).join("")+`</div>`;
+}).join("");
+
+/* ---------- floor page ---------- */
+const aptG=$("aptG");
+function centroid(pts){let A=0,x=0,y=0;for(let i=0;i<pts.length;i++){const[a,b]=pts[i],[c,d]=pts[(i+1)%pts.length],k=a*d-c*b;A+=k;x+=(a+c)*k;y+=(b+d)*k}A/=2;return A?[x/(6*A),y/(6*A)]:pts[0]}
+function renderFloor(b,f){
+  $("flEyebrow").textContent="Namas "+b; $("flTitle").textContent=f+" aukštas";
+  $("segB").innerHTML=BUILDINGS.map(x=>`<a href="#aukstas-${x}-${f}" class="${x===b?"on":""}">${x}</a>`).join("");
+  $("segF").innerHTML=FLOORS.map(x=>`<a href="#aukstas-${b}-${x}" class="${x===f?"on":""}">${x}</a>`).join("");
+  const list=floorApts(b,f);
+  $("alist").innerHTML=list.map(a=>`<a href="#butas-${a.id}" data-id="${a.id}"><b>${a.f}${a.pos}</b><span class="m">${a.t.k} kamb. · ${fmtN(a.area)} m²</span><span class="st">${a.res?'<i class="dot r"></i>Rezerv.':'<i class="dot"></i>Laisvas'}</span></a>`).join("");
+  aptG.textContent="";
+  C.aukstas.shapes.filter(s=>s.closed&&s.pts.length>2).forEach(s=>{
+    const i=parseInt(s.href,10)-1, apt=list[i]; if(!apt) return;
+    const a=document.createElementNS(NS,"a"); a.setAttribute("href","#butas-"+apt.id); a.setAttribute("class","ap"+(apt.res?" res":"")); a.setAttribute("aria-label","Butas "+apt.f+apt.pos+(apt.res?", rezervuotas":", laisvas")); a.dataset.id=apt.id;
+    const p=document.createElementNS(NS,"path"); p.setAttribute("d",pathD(s.pts)); a.appendChild(p);
+    const [cx,cy]=centroid(s.pts);
+    const r=document.createElementNS(NS,"rect"); r.setAttribute("x",cx-36); r.setAttribute("y",cy-19); r.setAttribute("width",72); r.setAttribute("height",38); r.setAttribute("rx",19); a.appendChild(r);
+    const t=document.createElementNS(NS,"text"); t.setAttribute("x",cx); t.setAttribute("y",cy+1); t.textContent=apt.f+apt.pos; a.appendChild(t);
+    bindHover(a,()=>aptTip(apt)); aptG.appendChild(a);
+  });
+  // link list ↔ plan highlight
+  $("alist").querySelectorAll("a").forEach(l=>{
+    const shape=()=>aptG.querySelector(`[data-id="${l.dataset.id}"]`);
+    l.addEventListener("mouseenter",()=>shape()?.classList.add("hl"));
+    l.addEventListener("mouseleave",()=>shape()?.classList.remove("hl"));
+  });
+  aptG.querySelectorAll(".ap").forEach(s=>{
+    const row=()=>$("alist").querySelector(`[data-id="${s.dataset.id}"]`);
+    s.addEventListener("mouseenter",()=>row()?.classList.add("hl"));
+    s.addEventListener("mouseleave",()=>row()?.classList.remove("hl"));
+  });
+}
+
+/* ---------- apartment page ---------- */
+let curApt=null;
+function renderApt(a){
+  curApt=a;
+  $("aptEyebrow").textContent="Namas "+a.b+" · "+a.f+" aukštas";
+  $("aptTitle").textContent="Butas "+a.b+"-"+a.f+a.pos;
+  const st=$("aptStatus"); st.className="status"+(a.res?" r":""); st.innerHTML=(a.res?'<i class="dot r"></i>Rezervuotas':'<i class="dot"></i>Laisvas');
+  $("aptBack").href="#aukstas-"+a.b+"-"+a.f;
+  $("aptImg").alt="Buto "+a.b+"-"+a.f+a.pos+" planas";
+  $("aptSpecs").innerHTML=`<div><span>Kambariai</span><b>${a.t.k}</b></div><div><span>Plotas</span><b>${fmtN(a.area)} m²</b></div>
+    <div><span>Balkonas</span><b>${fmtN(a.t.bal)} m²</b></div><div><span>Kaina</span><b>${a.res?"–":fmtP(a.price)}</b></div>`;
+  $("aptRooms").innerHTML=a.t.r.map(r=>`<tr><td>${r[0]}</td><td>${fmtN(r[1])} m²</td></tr>`).join("")+`<tr class="tot"><td>Iš viso</td><td>${fmtN(a.area)} m²</td></tr>`;
+  $("aptAsk").textContent=a.res?"Pranešti, jei atsilaisvins":"Teirautis dėl buto";
+  const list=floorApts(a.b,a.f), i=a.idx;
+  $("aptPrev").href="#butas-"+list[(i+7)%8].id; $("aptNext").href="#butas-"+list[(i+1)%8].id;
+}
+
+
+/* ---------- location map ---------- */
+const CATS=[
+ {id:"transportas",name:"Transportas",intro:"Iš Du Aidai kvartalo iki centro – vos kelios minutės. Šalia viešojo transporto stotelės, dviračių takai ir greitas išvažiavimas į pagrindines miesto gatves.",
+  pts:[["Stotelė „Baranausko g.“","3 min pėsčiomis",680,372],["Stotelė „Studentų g.“","6 min pėsčiomis",585,232],["Radvilėnų pl. – išvažiavimas į centrą","2 min automobiliu",330,486],["Dviračių takas Studentų g.","Tiesiai į Grįčiupio parką",808,352],["Elektromobilių įkrovimo stotelė","4 min pėsčiomis",520,556],["Stotelė „KTU“","9 min pėsčiomis",930,468]]},
+ {id:"pramogos",name:"Pramogos",intro:"Žaliakalnis – ramus, žalias rajonas. Parkai, alėjos, kavinės ir sporto erdvės pasiekiamos pėsčiomis.",
+  pts:[["Grįčiupio parkas","12 min pėsčiomis",1030,452],["Kavinė „Būk sotus“","3 min pėsčiomis",650,442],["Picerija „Pizza Delizio“","8 min pėsčiomis",545,636],["KTU sporto ir renginių salė","10 min pėsčiomis",692,636],["Lauko treniruoklių aikštelė","6 min pėsčiomis",190,560],["Vaikų žaidimų aikštelė","2 min pėsčiomis",498,330]]},
+ {id:"edukacija",name:"Edukacija",intro:"Darželiai, mokyklos ir Kauno technologijos universitetas – kaimynystėje. Patogu šeimoms su vaikais ir studentams.",
+  pts:[["Mokykla-darželis „Šviesa“","7 min pėsčiomis",622,124],["„Varpelio“ pradinė mokykla","14 min pėsčiomis",1040,62],["„Varpo“ gimnazija","12 min pėsčiomis",1040,252],["KTU Cheminės technologijos fakultetas","5 min pėsčiomis",640,512],["KTU E. mokymosi technologijų centras","11 min pėsčiomis",930,604],["KTU Informatikos fakultetas","14 min pėsčiomis",990,686]]},
+ {id:"parduotuves",name:"Parduotuvės",intro:"Kasdieniams pirkiniams nereikia automobilio: prekybos centrai, vaistinė ir kepykla – vos už kelių minučių.",
+  pts:[["Prekybos centras „Rimi“","6 min pėsčiomis",657,244],["Parduotuvė „Šilas“","13 min pėsčiomis",905,110],["Vaistinė Baranausko g.","5 min pėsčiomis",758,296],["Kepykla ir kavinė","3 min pėsčiomis",596,470],["Paštomatai","4 min pėsčiomis",716,418]]}
+];
+const ptG=$("ptG"), plist=$("plist");
+$("pills").innerHTML=CATS.map((c,i)=>`<button type="button" class="pill" id="pill-${c.id}" aria-pressed="${i===0}" data-i="${i}">${c.name}</button>`).join("");
+let curCat=-1;
+let touchMode=false, tapK=-1;
+addEventListener("pointerdown",e=>{ touchMode=e.pointerType!=="mouse"; },{capture:true,passive:true});
+function tapHl(k){ if(tapK>=0) hl(tapK,false); if(tapK===k){ tapK=-1; return; } tapK=k; hl(k,true); }
+function showCat(i){ tapK=-1;
+  if(i===curCat) return; curCat=i; const c=CATS[i];
+  rEl&&(rEl.classList.remove("on"),rBg.classList.remove("on"));
+  document.querySelectorAll(".pill").forEach(b=>b.setAttribute("aria-pressed",+b.dataset.i===i));
+  $("locTitle").textContent=c.name; $("locIntro").textContent=c.intro;
+  const old=[...ptG.children]; old.forEach(o=>o.firstChild.classList.add("out")); setTimeout(()=>old.forEach(o=>o.remove()),240);
+  setTimeout(()=>{
+    c.pts.forEach((p,k)=>{
+      const w=document.createElementNS(NS,"g"); w.setAttribute("transform",`translate(${p[2]},${p[3]})`);
+      const g=document.createElementNS(NS,"g"); g.setAttribute("class","pt"); g.style.animationDelay=(k*70)+"ms"; g.dataset.k=k;
+      g.innerHTML=`<g class="pt-s"><circle r="14"/><text y="1">${k+1}</text></g>`; g.setAttribute("aria-label",p[0]); w.appendChild(g);
+      g.addEventListener("mouseenter",()=>{ if(!touchMode) hl(k,true); }); g.addEventListener("mouseleave",()=>{ if(!touchMode) hl(k,false); }); g.addEventListener("click",()=>{ if(touchMode) tapHl(k); });
+      ptG.appendChild(w);
+    });
+  },old.length?200:0);
+  plist.innerHTML=c.pts.map((p,k)=>`<li data-k="${k}" style="animation-delay:${k*50}ms"><span class="n">${k+1}</span><div><b>${p[0]}</b><span class="d">${p[1]}</span></div></li>`).join("");
+  plist.querySelectorAll("li").forEach(li=>{ li.addEventListener("mouseenter",()=>{ if(!touchMode) hl(+li.dataset.k,true); }); li.addEventListener("mouseleave",()=>{ if(!touchMode) hl(+li.dataset.k,false); }); li.addEventListener("click",()=>{ if(touchMode){ tapHl(+li.dataset.k); $("vieta").querySelector(".map").scrollIntoView({behavior:"smooth",block:"center"}); } }); });
+}
+const ROUTES={"transportas-0": "M571,395 L571,426 L577,432 L617,448 L631,449 L648,432 L685,386 L685,378 L680,372", "transportas-1": "M571,395 L571,426 L577,432 L617,448 L631,449 L648,432 L728,334 L728,325 L719,316 L595,245 L585,235 L585,232", "transportas-2": "M571,395 L571,426 L579,433 L615,447 L621,453 L621,463 L508,595 L491,612 L479,612 L330,486", "transportas-3": "M571,395 L571,426 L577,432 L617,448 L631,449 L648,432 L716,348 L733,331 L748,333 L790,361 L800,361 L808,352", "transportas-4": "M571,395 L571,426 L579,433 L615,447 L621,453 L621,463 L533,563 L526,562 L520,556", "transportas-5": "M571,395 L571,426 L577,432 L617,448 L631,449 L648,432 L716,348 L733,331 L744,331 L877,415 L901,437 L915,462 L924,471 L930,468", "pramogos-0": "M571,395 L571,426 L577,432 L617,448 L631,449 L648,432 L716,348 L733,331 L744,331 L885,421 L901,437 L916,464 L931,480 L950,477 L956,483 L977,518 L987,518 L993,514 L993,489 L1030,452", "pramogos-1": "M571,395 L571,426 L577,432 L621,449 L632,449 L640,441 L650,442", "pramogos-2": "M571,395 L571,426 L579,433 L615,447 L621,453 L621,463 L493,612 L493,623 L509,639 L520,639 L530,631 L541,631 L545,636", "pramogos-3": "M571,395 L571,426 L577,432 L629,453 L692,504 L692,636", "pramogos-4": "M571,395 L571,426 L579,433 L615,447 L621,453 L621,463 L508,595 L491,612 L479,612 L271,436 L263,436 L257,442 L158,476 L148,482 L148,488 L161,521 L161,531 L190,560", "pramogos-5": "M571,395 L571,418 L565,424 L554,424 L542,418 L477,366 L468,357 L463,345 L463,335 L482,315 L498,330", "edukacija-0": "M571,395 L571,426 L577,432 L617,448 L631,449 L648,432 L728,334 L728,325 L716,314 L561,225 L490,154 L490,146 L504,132 L512,120 L516,120 L546,92 L590,71 L599,71 L602,74 L613,114 L622,124", "edukacija-1": "M571,395 L571,426 L577,432 L617,448 L631,449 L648,432 L808,236 L878,154 L884,136 L889,89 L896,82 L1035,80 L1038,77 L1038,64 L1040,62", "edukacija-2": "M571,395 L571,426 L577,432 L617,448 L631,449 L648,432 L716,348 L733,331 L744,331 L887,423 L906,425 L971,388 L1011,362 L1027,355 L1040,346 L1046,346 L1056,336 L1056,321 L1015,279 L1040,252", "edukacija-3": "M571,395 L571,426 L577,432 L620,448 L641,464 L641,468 L634,476 L634,482 L652,500 L640,512", "edukacija-4": "M571,395 L571,426 L577,432 L617,448 L631,449 L648,432 L716,348 L733,331 L748,333 L877,415 L901,437 L905,447 L931,484 L970,550 L970,558 L961,566 L944,573 L934,573 L918,586 L918,592 L930,604", "edukacija-5": "M571,395 L571,426 L577,432 L617,448 L631,449 L648,432 L716,348 L733,331 L744,331 L877,415 L901,437 L905,447 L931,484 L971,551 L1019,642 L1019,653 L1014,657 L1014,664 L990,686", "parduotuves-0": "M571,395 L571,426 L577,432 L617,448 L631,449 L648,432 L728,334 L728,325 L719,316 L651,278 L638,266 L638,261 L644,259 L657,244", "parduotuves-1": "M571,395 L571,426 L577,432 L617,448 L631,449 L648,432 L808,236 L878,154 L884,136 L886,113 L893,106 L905,110", "parduotuves-2": "M571,395 L571,426 L577,432 L617,448 L631,449 L648,432 L740,321 L758,296", "parduotuves-3": "M571,395 L571,426 L579,433 L610,444 L621,453 L621,462 L607,476 L602,476 L596,470", "parduotuves-4": "M571,395 L571,426 L579,433 L621,449 L631,449 L683,391 L690,392 L716,418"};
+const rEl=$("route"), rBg=$("routeBg"), rMask=$("rmp");
+function mapTip(k){
+  const c=CATS[curCat], p=c.pts[k], m=p[1].match(/^(\d+) min (.+)$/);
+  tip.className="tip spot";
+  tip.innerHTML=`<div class="tip-n${m?"":" sm"}"><b>${m?m[1]:k+1}</b><span>${m?"min":"taškas"}</span></div><div class="tip-b"><div class="tip-name">${p[0]}</div><div class="tip-mode"><i class="dot"></i>${m?m[2].charAt(0).toUpperCase()+m[2].slice(1):p[1]}</div></div>`;
+  const svg=ptG.ownerSVGElement, m2=svg.getScreenCTM(); if(!m2) return;
+  const q=svg.createSVGPoint(); q.x=p[2]; q.y=p[3]; const s=q.matrixTransform(m2), z=m2.a;
+  placeTip(s.x+16*z, s.y-28*z-22);
+}
+function hl(k,on){
+  ptG.querySelectorAll(`.pt:not(.out)[data-k="${k}"]`).forEach(e=>{ e.classList.toggle("hl",on); });
+  const d=on&&ROUTES[CATS[curCat].id+"-"+k];
+  if(d){ [rEl,rBg,rMask].forEach(p=>p.setAttribute("d",d)); rMask.classList.remove("draw"); void rMask.getBoundingClientRect(); rMask.classList.add("draw"); }
+  rEl.classList.toggle("on",!!d); rBg.classList.toggle("on",!!d);
+  if(on) requestAnimationFrame(()=>mapTip(k)); else hideTip();
+  plist.querySelector(`li[data-k="${k}"]`)?.classList.toggle("hl",on);
+}
+$("pills").addEventListener("click",e=>{ const b=e.target.closest(".pill"); if(b) showCat(+b.dataset.i); });
+showCat(0);
+
+/* ---------- router ---------- */
+const hdr=$("hdr");
+function route(){
+  const h=decodeURIComponent(location.hash.slice(1))||"pradzia";
+  let view="pradzia", m, toLoc=false;
+  if(h==="vieta") toLoc=true;
+  else if(h==="rinkis") view="rinkis";
+  else if((m=h.match(/^aukstas-([AB])-([2-5])$/))){ view="aukstas"; renderFloor(m[1],+m[2]); }
+  else if((m=h.match(/^butas-([AB][2-5]\d\d)$/)) && APTS[m[1]]){ view="butas"; renderApt(APTS[m[1]]); }
+  document.querySelectorAll(".view").forEach(v=>v.classList.toggle("on",v.dataset.view===view));
+  curView=view; document.body.dataset.view=view; hdr.classList.toggle("ink", view==="aukstas"||view==="butas");
+  document.body.classList.remove("menu"); $("burger").setAttribute("aria-expanded","false");
+  hideTip();
+  if(toLoc){ requestAnimationFrame(()=>$("vieta").scrollIntoView({behavior:reduceM?"auto":"smooth"})); }
+  else window.scrollTo(0,0);
+  onScroll();
+  if(view==="rinkis"){ const p=$("pick"); requestAnimationFrame(()=>{ p.scrollLeft=(p.scrollWidth-p.clientWidth)*0.5; }); }
+}
+addEventListener("hashchange",route);
+let curView="pradzia"; const reduceM=matchMedia("(prefers-reduced-motion: reduce)").matches;
+function onScroll(){ hdr.classList.toggle("capsule", curView!=="pradzia" || scrollY>40); if(curView!=="pradzia") return; const hero=document.querySelector(".hero"); hdr.classList.toggle("ink", scrollY > hero.offsetHeight-60); }
+addEventListener("scroll",onScroll,{passive:true});
+
+/* ---------- misc UI ---------- */
+const nav=$("nav"), bub=$("bub"), cta=nav.querySelector(".cta");
+function bubTo(el){
+  if(innerWidth<=980) return;
+  nav.querySelectorAll("a").forEach(x=>x.classList.toggle("act",x===el));
+  bub.style.left=el.offsetLeft+"px"; bub.style.width=el.offsetWidth+"px";
+}
+nav.querySelectorAll("a").forEach(a=>{ a.addEventListener("mouseenter",()=>bubTo(a)); a.addEventListener("focus",()=>bubTo(a)); });
+nav.addEventListener("mouseleave",()=>bubTo(cta)); nav.addEventListener("focusout",e=>{ if(!nav.contains(e.relatedTarget)) bubTo(cta); });
+addEventListener("resize",()=>bubTo(cta));
+bubTo(cta); document.fonts&&document.fonts.ready.then(()=>bubTo(cta));
+
+function toast(t){ const el=$("toast"); el.textContent=t; el.classList.add("on"); clearTimeout(toast.t); toast.t=setTimeout(()=>el.classList.remove("on"),2400); }
+document.querySelectorAll("[data-soon]").forEach(a=>a.addEventListener("click",e=>{ e.preventDefault(); document.body.classList.remove("menu"); toast("„"+a.dataset.soon+"“ sekcija dar kuriama"); }));
+const modal=$("modal"); let lastFocus=null;
+function openModal(){
+  const a=curApt; lastFocus=document.activeElement;
+  $("mApt").textContent=a?("Butas "+a.b+"-"+a.f+a.pos+" · "+a.t.k+" kamb. · "+fmtN(a.area)+" m²"):"Du Aidai";
+  $("mTitle").textContent=a&&a.res?"Pranešti, jei atsilaisvins":"Teirautis dėl buto";
+  $("mForm").hidden=false; $("mDone").hidden=true; $("fErr").hidden=true;
+  $("askForm").reset(); $("fMsg").value=a?("Domina butas "+a.b+"-"+a.f+a.pos+"."):"";
+  modal.hidden=false; document.body.classList.add("locked"); setTimeout(()=>$("fName").focus(),60);
+}
+function closeModal(){ modal.hidden=true; document.body.classList.remove("locked"); lastFocus&&lastFocus.focus(); }
+$("aptAsk").addEventListener("click",openModal);
+modal.addEventListener("click",e=>{ if(e.target.closest("[data-close]")) closeModal(); });
+addEventListener("keydown",e=>{ if(e.key==="Escape"&&!modal.hidden) closeModal(); });
+$("askForm").addEventListener("submit",e=>{
+  e.preventDefault();
+  const n=$("fName"), m=$("fEmail"), p=$("fPhone"); let err="";
+  [n,m,p].forEach(x=>x.removeAttribute("aria-invalid"));
+  if(!n.value.trim()){ err="Įrašykite vardą."; n.setAttribute("aria-invalid","true"); }
+  else if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(m.value.trim())){ err="Įrašykite teisingą el. pašto adresą."; m.setAttribute("aria-invalid","true"); }
+  else if(p.value.trim() && !/^[+\d][\d\s()-]{6,}$/.test(p.value.trim())){ err="Patikrinkite telefono numerį."; p.setAttribute("aria-invalid","true"); }
+  if(err){ const fe=$("fErr"); fe.textContent=err; fe.hidden=false; return; }
+  $("mForm").hidden=true; $("mDone").hidden=false;
+});
+document.querySelectorAll('a[href="#vieta"]').forEach(l=>l.addEventListener("click",e=>{ if(location.hash==="#vieta"){ e.preventDefault(); document.body.classList.remove("menu"); $("vieta").scrollIntoView({behavior:"smooth"}); } }));
+$("burger").addEventListener("click",()=>{ const o=document.body.classList.toggle("menu"); $("burger").setAttribute("aria-expanded",o); });
+
+/* ---------- loader: logo contours draw with real image progress ---------- */
+const loader=$("loader"), pctEl=$("pct"), paths=[...loader.querySelectorAll("path")];
+const SRC=["img/hero.webp","img/namai.webp","img/aukstas.webp","img/butas.webp"];
+let loaded=0; SRC.forEach(s=>{ const im=new Image(); im.onload=im.onerror=()=>loaded++; im.src=s; });
+const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+const MIN=reduce?200:2200, t0=performance.now(); let p=0;
+document.body.classList.add("locked");
+route();
+(function tick(now){
+  const timeCap=Math.min(1,(now-t0)/MIN)*100, loadCap=8+loaded/SRC.length*92;
+  const target=Math.min(timeCap,loadCap);
+  p+=(target-p)*(reduce?1:.07); if(target>=100&&p>99.4) p=100;
+  pctEl.textContent=Math.floor(p)+"%";
+  paths.forEach((el,i)=>{ const lag=i*4; el.style.strokeDashoffset=Math.max(0,1-Math.max(0,p-lag)/(100-lag)); });
+  if(p<100) return requestAnimationFrame(tick);
+  loader.classList.add("filled");
+  setTimeout(()=>{ loader.classList.add("done"); document.body.classList.remove("locked"); document.body.classList.add("ready"); },reduce?50:700);
+  setTimeout(()=>loader.hidden=true,reduce?100:1700);
+})(t0);
+})();
+</script>
+
+</body></html>
