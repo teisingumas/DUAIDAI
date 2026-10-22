@@ -129,6 +129,25 @@ if ($post && !da_csrf_ok($_POST['csrf'] ?? null)) {
         da_fail($keys); /* riboja laiškų siuntimą iš vieno IP */
     }
     $msg = 'Jei šis el. paštas yra sistemoje, išsiuntėme nuorodą slaptažodžiui atkurti. Patikrinkite ir „Šlamšto“ aplanką.';
+} elseif ($a === 'setup') {
+    /* pirmas slaptažodis be el. laiško: vienkartinė nuoroda */
+    $keys = ['ip:' . da_ip()];
+    $u = da_find_user('email', DA_OWNER_EMAIL);
+    $tok = (string)($_GET['t'] ?? '');
+    if (!$u || empty($u['initial'])) { $err = 'Slaptažodis jau nustatytas – prisijunkite arba naudokite „Pamiršau slaptažodį“.'; $a = ''; }
+    elseif ($wait = da_locked($keys)) { $err = 'Per daug bandymų. Bandykite po ' . ceil($wait / 60) . ' min.'; $a = ''; }
+    elseif (!hash_equals(DA_SETUP_HASH, hash('sha256', $tok))) { da_fail($keys); $err = 'Nuoroda neteisinga.'; $a = ''; }
+    elseif ($post) {
+        $p1 = (string)($_POST['p1'] ?? ''); $p2 = (string)($_POST['p2'] ?? '');
+        if ($p1 !== $p2) $err = 'Slaptažodžiai nesutampa.';
+        elseif ($e = da_pw_problem($p1)) $err = $e;
+        else {
+            da_update_user($u['id'], fn($x) => array_merge($x, ['hash' => password_hash($p1, PASSWORD_DEFAULT), 'mustChange' => false, 'initial' => false, 'pwv' => ($x['pwv'] ?? 0) + 1]));
+            da_log($u['name'], 'Nusistatė pirmą slaptažodį (vienkartinė nuoroda)');
+            da_logout(); da_session_start();
+            $msg = 'Slaptažodis nustatytas. Prisijunkite.'; $a = ''; $stage = '';
+        }
+    }
 } elseif ($a === 'reset') {
     $u = da_find_user('id', (string)($_GET['u'] ?? ''));
     $tok = (string)($_GET['t'] ?? '');
@@ -204,6 +223,13 @@ if (!$user) {
 <label>El. paštas<input type="email" name="email" autocomplete="username" required autofocus></label>
 <button class="btn">Siųsti nuorodą</button></form>
 <p class="sub"><a href="/crm/">← Grįžti į prisijungimą</a></p>');
+    }
+    if ($a === 'setup') {
+        auth_page('Pirmas slaptažodis', '<h1>Susikurkite slaptažodį</h1><p class="lead">' . e(DA_OWNER_EMAIL) . '. Bent 10 simbolių; ilgis svarbiau už ženklus.</p>' . $note . '
+<form method="post" action="/crm/?a=setup&amp;t=' . e($_GET['t'] ?? '') . '">' . $hid . '
+<label>Slaptažodis<input type="password" name="p1" autocomplete="new-password" minlength="10" required autofocus></label>
+<label>Pakartokite<input type="password" name="p2" autocomplete="new-password" minlength="10" required></label>
+<button class="btn">Išsaugoti</button></form>');
     }
     if ($a === 'reset') {
         auth_page('Naujas slaptažodis', '<h1>Naujas slaptažodis</h1>' . $note . '
