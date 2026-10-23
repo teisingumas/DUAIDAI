@@ -53,7 +53,13 @@ nav.main{border-radius:999px;transition:background .45s, box-shadow .45s, transf
 @keyframes pillIn{from{transform:translateY(-14px) scale(.96);opacity:.4}to{transform:translateY(4px) scale(1);opacity:1}}
 header.site.capsule .burger{background:rgba(250,251,249,.74);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-radius:999px;color:var(--ink);box-shadow:0 8px 30px rgba(23,32,27,.14)}
 body.menu header.site.capsule .burger{background:transparent;color:var(--white);box-shadow:none}
-.brand{justify-self:start;display:flex;align-items:center;padding:8px 0;text-decoration:none}
+.brand{justify-self:start;display:flex;align-items:center;padding:8px 12px;margin-left:-12px;border-radius:16px;text-decoration:none;transition:transform .45s, background .35s, box-shadow .35s}
+header.site.lift.ink .brand{background:rgba(250,251,249,.94);backdrop-filter:blur(16px) saturate(1.3);-webkit-backdrop-filter:blur(16px) saturate(1.3);box-shadow:0 8px 30px rgba(23,32,27,.14), inset 0 0 0 1px rgba(255,255,255,.6)}
+body.menu header.site .brand{background:transparent;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none}
+/* paslinkus – beveik nepermatomi logotipas, meniu ir mygtukas, kad nuotraukos po jais nesimatytų */
+@media (min-width:981px){ header.site.lift.capsule nav.main{background:rgba(250,251,249,.94)} }
+header.site.lift.capsule .burger{background:rgba(250,251,249,.94)}
+body.menu header.site.lift.capsule .burger{background:transparent}
 .brand svg{height:50px;width:auto;display:block}
 .brand path{fill:currentColor}
 nav.main{display:flex;align-items:center;gap:6px}
@@ -308,16 +314,19 @@ table.rooms tr.tot td{border-bottom:0;font-weight:800;padding-top:12px}
   .loc-head{position:static;order:1;padding:0 max(24px, env(safe-area-inset-left,0px))}
   .loc::before{display:none}
   .map{position:relative;order:2;inset:auto;margin-top:24px;aspect-ratio:1076/743}
-  .loc-stats{position:static;order:3;margin:-28px 0 0;padding:0 24px;overflow-x:auto;scrollbar-width:none}
-  .loc-stats::-webkit-scrollbar{display:none}
+  /* telefone trys laiko kortelės visada telpa vienoje eilėje */
+  .loc-stats{position:static;order:3;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:-30px 0 0;padding:0 16px}
   .loc-stats .loc-stat:nth-child(3){display:flex}
-  .loc-stat{flex:none;padding:10px 16px 10px 12px}
+  .loc-stat{flex-direction:column;align-items:flex-start;gap:6px;padding:12px 12px 11px;border-radius:14px;min-width:0}
+  .loc-stat svg{width:20px;height:20px}
   .loc-stat b{font-size:22px}
+  .loc-stat b small{font-size:11px;margin-left:2px}
+  .loc-stat span{font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .loc-card{position:static;order:4;transform:none;width:auto;margin:20px 16px 0;padding:16px 14px 14px}
-  .pills{overflow-x:auto;scrollbar-width:none}
-  .pills::-webkit-scrollbar{display:none}
-  .pill{flex:none}
+  .pill{flex:1 1 0;min-width:0;padding:0 4px;font-size:12px;letter-spacing:0}
+  .loc-card{margin:16px 12px 0}
 }
+@media (max-width:380px){ .pills{display:grid;grid-template-columns:1fr 1fr;border-radius:22px} .pill{height:36px} }
 
 .foot{background:var(--accent);color:var(--white);padding-block:56px calc(40px + env(safe-area-inset-bottom,0px));padding-left:max(56px, env(safe-area-inset-left,0px));padding-right:max(56px, env(safe-area-inset-right,0px))}
 .foot-in{display:grid;gap:36px}
@@ -804,7 +813,7 @@ function route(){
 }
 addEventListener("hashchange",route);
 let curView="pradzia"; const reduceM=matchMedia("(prefers-reduced-motion: reduce)").matches;
-function onScroll(){ hdr.classList.toggle("capsule", curView!=="pradzia" || scrollY>40); if(curView!=="pradzia") return; const hero=document.querySelector(".hero"); hdr.classList.toggle("ink", scrollY > hero.offsetHeight-60); }
+function onScroll(){ hdr.classList.toggle("capsule", curView!=="pradzia" || scrollY>40); hdr.classList.toggle("lift", scrollY>40); if(curView!=="pradzia") return; const hero=document.querySelector(".hero"); hdr.classList.toggle("ink", scrollY > hero.offsetHeight-60); }
 addEventListener("scroll",onScroll,{passive:true});
 
 /* ---------- misc UI ---------- */
