@@ -252,8 +252,9 @@ table.rooms tr.tot td{border-bottom:0;font-weight:800;padding-top:12px}
 .pt.out{animation:ptOut .22s ease-in both}
 @keyframes ptIn{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
 @keyframes ptOut{to{transform:scale(0);opacity:0}}
-.pt-s{transform-box:fill-box;transform-origin:center;transition:transform .35s cubic-bezier(.3,1.5,.5,1)}
-.pt.hl .pt-s{transform:scale(2)}
+/* --ps nustatomas fitMap(): taškai ekrane visada ~30 px skersmens, nepriklausomai nuo žemėlapio mastelio */
+.pt-s{transform-box:fill-box;transform-origin:center;transform:scale(var(--ps,1));transition:transform .35s cubic-bezier(.3,1.5,.5,1)}
+.pt.hl .pt-s{transform:scale(calc(var(--ps,1) * 1.35))}
 .pt circle{fill:var(--ink);stroke:var(--white);stroke-width:2.5;transition:fill .2s}
 .route{fill:none;stroke:var(--accent);stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1 9;animation:march .9s linear infinite;opacity:0;transition:opacity .25s}
 .route.on{opacity:1}
@@ -369,8 +370,6 @@ table.rooms tr.tot td{border-bottom:0;font-weight:800;padding-top:12px}
   .pl-b a:last-child{border-bottom:1px solid var(--line)}
   .pl-b .st{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--muted)}
   .pl-b .go{color:var(--accent);font-size:18px}
-  .pt-s{transform:scale(1.7)}
-  .pt.hl .pt-s{transform:scale(2.5)}
 }
 .toast{position:fixed;z-index:90;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translate(-50%,10px);background:var(--ink);color:var(--white);padding:12px 20px;border-radius:999px;font-size:13px;font-weight:600;opacity:0;pointer-events:none;transition:opacity .25s, transform .25s;max-width:calc(100% - 32px);text-align:center}
 .toast.on{opacity:1;transform:translate(-50%,0)}
@@ -435,7 +434,7 @@ table.rooms tr.tot td{border-bottom:0;font-weight:800;padding-top:12px}
         </g>
         <mask id="rmask" maskUnits="userSpaceOnUse" x="0" y="0" width="1076" height="743"><path id="rmp" pathLength="1" d=""/></mask>
         <g mask="url(#rmask)" aria-hidden="true"><path class="route-bg" id="routeBg" d=""/><path class="route" id="route" d=""/></g>
-        <g class="m-home" transform="translate(571,395)">
+        <g class="m-home" id="mHome" transform="translate(571,395)">
           <circle class="pulse" r="30"/>
           <rect x="-26" y="-26" width="52" height="52" rx="26"/>
           <g transform="translate(-13,-13.5) scale(.0921)"><path d="M0,95 L116,34 L116,293 L93,293 L93,109 L33,139 L33,293 L0,293Z"/><path d="M168,0 L284,59 L284,293 L249,293 L249,102 L191,71 L191,293 L168,293Z"/></g>
@@ -762,13 +761,17 @@ $("locStats").innerHTML=[["bus",0,0,"iki stotelės"],["tree",1,0,"iki parko"],["
 const PB={x0:180,x1:1050,y0:55,y1:695}; // visų kategorijų taškų ribos žemėlapio koordinatėmis
 function fitMap(){
   const svg=$("mapSvg"), sec=$("vieta");
-  if(innerWidth<=980){ svg.setAttribute("viewBox","0 0 1076 743"); return; }
+  const scaleMarks=()=>{ const k=svg.getBoundingClientRect().width/svg.viewBox.baseVal.width; if(!k) return;
+    const ps=Math.min(2.6,Math.max(1,15/(14*k))), hs=Math.min(2.2,Math.max(1,30/(26*k)));
+    svg.style.setProperty("--ps",ps.toFixed(2)); $("mHome").setAttribute("transform",`translate(571,395) scale(${hs.toFixed(2)})`); };
+  if(innerWidth<=980){ svg.setAttribute("viewBox","0 0 1076 743"); scaleMarks(); return; }
   const W=sec.clientWidth, H=sec.clientHeight, sr=sec.getBoundingClientRect();
   const left=56, right=document.querySelector(".loc-card").getBoundingClientRect().left-sr.left-40;
   const top=document.querySelector(".loc-head").getBoundingClientRect().bottom-sr.top+24, bottom=document.querySelector(".loc-stats").getBoundingClientRect().top-sr.top-16;
   const k=Math.min((right-left)/(PB.x1-PB.x0),(bottom-top)/(PB.y1-PB.y0));
   const u0=PB.x0-(left+((right-left)-(PB.x1-PB.x0)*k)/2)/k, v0=PB.y0-(top+((bottom-top)-(PB.y1-PB.y0)*k)/2)/k;
   svg.setAttribute("viewBox",`${u0.toFixed(1)} ${v0.toFixed(1)} ${(W/k).toFixed(1)} ${(H/k).toFixed(1)}`);
+  scaleMarks();
 }
 // Įžangos aukštis = aukščiausia iš visų kategorijų įžangų, kad kortelė nešokinėtų keičiant kategoriją
 function fitIntro(){ const el=$("locIntro"), cur=el.textContent; el.style.minHeight=""; let h=0;
