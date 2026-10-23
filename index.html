@@ -232,8 +232,8 @@ table.rooms tr.tot td{border-bottom:0;font-weight:800;padding-top:12px}
 }
 
 /* location */
-.loc{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);background:var(--paper)}
-.map{position:relative;aspect-ratio:1076/743;overflow:hidden;background:#f3f1ec}
+.loc{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);background:var(--paper)}
+.map{position:relative;min-height:min(86vh,820px);overflow:hidden;background:#f3f1ec}
 .map svg{position:absolute;inset:0;width:100%;height:100%;display:block}
 .m-road{fill:#fbfaf7;stroke:rgba(31,77,58,.28);stroke-width:1;vector-effect:non-scaling-stroke}
 .m-park{fill:url(#dots)}
@@ -267,29 +267,38 @@ table.rooms tr.tot td{border-bottom:0;font-weight:800;padding-top:12px}
 .pin-ring{fill:none;stroke:var(--white);stroke-width:2;opacity:0;transition:opacity .2s;pointer-events:none}
 .pinA:hover .pin-ring,.pinA:focus .pin-ring{opacity:1}
 .pinA:focus{outline:none}
-.pills{position:absolute;z-index:2;left:24px;bottom:24px;right:24px;display:flex;flex-wrap:wrap;gap:8px}
-.pill{height:44px;padding:0 20px;border-radius:999px;border:0;background:#f4efe6;color:var(--ink);font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;box-shadow:0 2px 10px rgba(23,32,27,.08);transition:background .2s, color .2s}
-.pill:hover{background:var(--white)}
-.pill[aria-pressed="true"]{background:var(--accent);color:var(--white)}
-.loc-txt{padding-block:clamp(88px,10vh,120px) 48px;padding-left:max(48px, env(safe-area-inset-left,0px));padding-right:max(56px, env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:28px;min-width:0}
-.loc-txt h2{margin:6px 0 0;font-size:clamp(40px,5vw,76px);font-weight:800;letter-spacing:-.035em;line-height:.95;text-transform:uppercase;color:var(--ink);text-wrap:balance}
-.loc-txt p{margin:0;max-width:52ch;font-size:14px;font-weight:500;line-height:1.6;letter-spacing:.03em;text-transform:uppercase;color:#3c4640}
-.plist{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px 32px}
-.plist li{display:grid;grid-template-columns:32px minmax(0,1fr);gap:14px;align-items:start;cursor:default;animation:liIn .45s ease both}
+.pills{display:flex;flex-wrap:wrap;gap:8px}
+.pill{height:42px;padding:0 16px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--ink);font-size:13px;font-weight:600;letter-spacing:.02em;cursor:pointer;transition:background .25s, color .25s, border-color .25s}
+.pill:hover{background:rgba(31,77,58,.06);border-color:rgba(31,77,58,.45);color:var(--accent)}
+.pill[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--white)}
+.loc-txt{padding-block:clamp(72px,10vh,112px) 56px;padding-left:max(48px, env(safe-area-inset-left,0px));padding-right:max(56px, env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:24px;min-width:0}
+.loc-txt .eyebrow{color:var(--accent)}
+.loc-txt h2{margin:10px 0 0;font-size:clamp(34px,3.6vw,56px);font-weight:800;letter-spacing:-.03em;line-height:.95;text-transform:uppercase;color:var(--ink);text-wrap:balance}
+.loc-txt p{margin:0;max-width:44ch;min-height:3.1em;font-size:16px;font-weight:500;line-height:1.55;color:var(--muted);text-wrap:pretty}
+/* sąrašas kaip tvarkaraštis: taškas · vieta · laikas */
+.plist{list-style:none;margin:4px 0 0;padding:0;display:grid;border-top:1px solid var(--line)}
+.plist li{display:grid;grid-template-columns:30px minmax(0,1fr) auto;gap:16px;align-items:center;padding:13px 4px;border-bottom:1px solid var(--line);cursor:default;animation:liIn .45s ease both;transition:background .2s}
 @keyframes liIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
-.plist .n{width:32px;height:32px;border-radius:50%;background:var(--ink);color:var(--white);display:grid;place-items:center;font-size:12px;font-weight:800;transition:background .2s}
-.plist li.hl .n{background:var(--accent-hi)}
-.plist b{display:block;font-size:15px;font-weight:600;line-height:1.35;padding-top:5px}
-.plist span.d{display:block;font-size:13px;color:var(--muted);margin-top:3px}
+.plist li.hl{background:rgba(31,77,58,.05)}
+.plist .n{width:30px;height:30px;border-radius:50%;background:var(--ink);color:var(--white);display:grid;place-items:center;font-size:12px;font-weight:800;transition:background .2s}
+.plist li.hl .n{background:var(--accent)}
+.plist b{display:block;font-size:15px;font-weight:600;line-height:1.35}
+.plist span.d{display:block;font-size:13px;color:var(--muted);margin-top:2px}
+.plist .t{text-align:right;white-space:nowrap;line-height:1.1}
+.plist .t b{font-size:22px;font-weight:800;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.plist .t b small{font-size:12px;font-weight:700;margin-left:3px;letter-spacing:0}
+.plist .t span{display:block;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:3px}
+.plist li.hl .t b{color:var(--accent)}
 @media (max-width:980px){
   .loc{grid-template-columns:1fr}
   .map{min-height:auto;aspect-ratio:1076/743;max-width:100%}
   .map{order:2} .loc-txt{order:1;padding-left:max(24px, env(safe-area-inset-left,0px));padding-right:max(24px, env(safe-area-inset-right,0px));padding-block:96px 32px}
-  .pills{position:static;padding:16px}
+  .pills{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin-right:-24px;padding-right:24px}
+  .pills::-webkit-scrollbar{display:none}
+  .pill{flex:none}
   .map{display:flex;flex-direction:column;aspect-ratio:auto}
   .map svg{position:static;aspect-ratio:1076/743;height:auto}
 }
-@media (max-width:560px){ .plist{grid-template-columns:1fr} }
 
 .foot{background:var(--accent);color:var(--white);padding-block:56px calc(40px + env(safe-area-inset-bottom,0px));padding-left:max(56px, env(safe-area-inset-left,0px));padding-right:max(56px, env(safe-area-inset-right,0px))}
 .foot-in{display:grid;gap:36px}
@@ -414,10 +423,10 @@ table.rooms tr.tot td{border-bottom:0;font-weight:800;padding-top:12px}
         </g>
         <g id="ptG"></g>
       </svg>
-      <div class="pills" role="group" aria-label="Taškų kategorijos" id="pills"></div>
     </div>
     <div class="loc-txt">
-      <div><div class="eyebrow">Vieta · Žaliakalnis, Kaunas</div><h2 id="locTitle">Transportas</h2></div>
+      <div><div class="eyebrow">Vieta · Žaliakalnis, Kaunas</div><h2 id="locTitle">Viskas šalia namų</h2></div>
+      <div class="pills" role="group" aria-label="Taškų kategorijos" id="pills"></div>
       <p id="locIntro"></p>
       <ol class="plist" id="plist"></ol>
     </div>
@@ -668,13 +677,13 @@ function renderApt(a){
 
 /* ---------- location map ---------- */
 const CATS=[
- {id:"transportas",name:"Transportas",intro:"Iš Du Aidai kvartalo iki centro – vos kelios minutės. Šalia viešojo transporto stotelės, dviračių takai ir greitas išvažiavimas į pagrindines miesto gatves.",
+ {id:"transportas",name:"Transportas",intro:"Stotelė – vos už kampo, dviračių takas prie pat namų, o į centrą nuvažiuosite per kelias minutes.",
   pts:[["Stotelė „Baranausko g.“","3 min pėsčiomis",680,372],["Stotelė „Studentų g.“","6 min pėsčiomis",585,232],["Radvilėnų pl. – išvažiavimas į centrą","2 min automobiliu",330,486],["Dviračių takas Studentų g.","Tiesiai į Grįčiupio parką",808,352],["Elektromobilių įkrovimo stotelė","4 min pėsčiomis",520,556],["Stotelė „KTU“","9 min pėsčiomis",930,468]]},
- {id:"pramogos",name:"Pramogos",intro:"Žaliakalnis – ramus, žalias rajonas. Parkai, alėjos, kavinės ir sporto erdvės pasiekiamos pėsčiomis.",
+ {id:"pramogos",name:"Pramogos",intro:"Žaliakalnis – ramus ir žalias. Parkai, alėjos, kavinės ir sporto aikštelės – pėsčiomis ranka pasiekiamos.",
   pts:[["Grįčiupio parkas","12 min pėsčiomis",1030,452],["Kavinė „Būk sotus“","3 min pėsčiomis",650,442],["Picerija „Pizza Delizio“","8 min pėsčiomis",545,636],["KTU sporto ir renginių salė","10 min pėsčiomis",692,636],["Lauko treniruoklių aikštelė","6 min pėsčiomis",190,560],["Vaikų žaidimų aikštelė","2 min pėsčiomis",498,330]]},
- {id:"edukacija",name:"Edukacija",intro:"Darželiai, mokyklos ir Kauno technologijos universitetas – kaimynystėje. Patogu šeimoms su vaikais ir studentams.",
+ {id:"edukacija",name:"Edukacija",intro:"Darželis, mokyklos ir KTU – kaimynystėje. Patogu ir šeimoms su vaikais, ir studentams.",
   pts:[["Mokykla-darželis „Šviesa“","7 min pėsčiomis",622,124],["„Varpelio“ pradinė mokykla","14 min pėsčiomis",1040,62],["„Varpo“ gimnazija","12 min pėsčiomis",1040,252],["KTU Cheminės technologijos fakultetas","5 min pėsčiomis",640,512],["KTU E. mokymosi technologijų centras","11 min pėsčiomis",930,604],["KTU Informatikos fakultetas","14 min pėsčiomis",990,686]]},
- {id:"parduotuves",name:"Parduotuvės",intro:"Kasdieniams pirkiniams nereikia automobilio: prekybos centrai, vaistinė ir kepykla – vos už kelių minučių.",
+ {id:"parduotuves",name:"Parduotuvės",intro:"Kasdieniams pirkiniams automobilio nereikės: parduotuvė, vaistinė ir kepykla – vos kelios minutės pėsčiomis.",
   pts:[["Prekybos centras „Rimi“","6 min pėsčiomis",657,244],["Parduotuvė „Šilas“","13 min pėsčiomis",905,110],["Vaistinė Baranausko g.","5 min pėsčiomis",758,296],["Kepykla ir kavinė","3 min pėsčiomis",596,470],["Paštomatai","4 min pėsčiomis",716,418]]}
 ];
 const ptG=$("ptG"), plist=$("plist");
@@ -687,7 +696,7 @@ function showCat(i){ tapK=-1;
   if(i===curCat) return; curCat=i; const c=CATS[i];
   rEl&&(rEl.classList.remove("on"),rBg.classList.remove("on"));
   document.querySelectorAll(".pill").forEach(b=>b.setAttribute("aria-pressed",+b.dataset.i===i));
-  $("locTitle").textContent=c.name; $("locIntro").textContent=c.intro;
+  $("locIntro").textContent=c.intro;
   const old=[...ptG.children]; old.forEach(o=>o.firstChild.classList.add("out")); setTimeout(()=>old.forEach(o=>o.remove()),240);
   setTimeout(()=>{
     c.pts.forEach((p,k)=>{
@@ -698,7 +707,9 @@ function showCat(i){ tapK=-1;
       ptG.appendChild(w);
     });
   },old.length?200:0);
-  plist.innerHTML=c.pts.map((p,k)=>`<li data-k="${k}" style="animation-delay:${k*50}ms"><span class="n">${k+1}</span><div><b>${p[0]}</b><span class="d">${p[1]}</span></div></li>`).join("");
+  plist.innerHTML=c.pts.map((p,k)=>{ const m=p[1].match(/^(\d+) min (.+)$/);
+    return `<li data-k="${k}" style="animation-delay:${k*50}ms"><span class="n">${k+1}</span><div><b>${p[0]}</b>${m?"":`<span class="d">${p[1]}</span>`}</div>`+
+      (m?`<div class="t"><b>${m[1]}<small>min</small></b><span>${m[2]}</span></div>`:"<div></div>")+`</li>`; }).join("");
   plist.querySelectorAll("li").forEach(li=>{ li.addEventListener("mouseenter",()=>{ if(!touchMode) hl(+li.dataset.k,true); }); li.addEventListener("mouseleave",()=>{ if(!touchMode) hl(+li.dataset.k,false); }); li.addEventListener("click",()=>{ if(touchMode){ tapHl(+li.dataset.k); $("vieta").querySelector(".map").scrollIntoView({behavior:"smooth",block:"center"}); } }); });
 }
 const ROUTES={"transportas-0": "M571,395 L571,426 L577,432 L617,448 L631,449 L648,432 L685,386 L685,378 L680,372", "transportas-1": "M571,395 L571,426 L577,432 L617,448 L631,449 L648,432 L728,334 L728,325 L719,316 L595,245 L585,235 L585,232", "transportas-2": "M571,395 L571,426 L579,433 L615,447 L621,453 L621,463 L508,595 L491,612 L479,612 L330,486", "transportas-3": "M571,395 L571,426 L577,432 L617,448 L631,449 L648,432 L716,348 L733,331 L748,333 L790,361 L800,361 L808,352", "transportas-4": "M571,395 L571,426 L579,433 L615,447 L621,453 L621,463 L533,563 L526,562 L520,556", "transportas-5": "M571,395 L571,426 L577,432 L617,448 L631,449 L648,432 L716,348 L733,331 L744,331 L877,415 L901,437 L915,462 L924,471 L930,468", "pramogos-0": "M571,395 L571,426 L577,432 L617,448 L631,449 L648,432 L716,348 L733,331 L744,331 L885,421 L901,437 L916,464 L931,480 L950,477 L956,483 L977,518 L987,518 L993,514 L993,489 L1030,452", "pramogos-1": "M571,395 L571,426 L577,432 L621,449 L632,449 L640,441 L650,442", "pramogos-2": "M571,395 L571,426 L579,433 L615,447 L621,453 L621,463 L493,612 L493,623 L509,639 L520,639 L530,631 L541,631 L545,636", "pramogos-3": "M571,395 L571,426 L577,432 L629,453 L692,504 L692,636", "pramogos-4": "M571,395 L571,426 L579,433 L615,447 L621,453 L621,463 L508,595 L491,612 L479,612 L271,436 L263,436 L257,442 L158,476 L148,482 L148,488 L161,521 L161,531 L190,560", "pramogos-5": "M571,395 L571,418 L565,424 L554,424 L542,418 L477,366 L468,357 L463,345 L463,335 L482,315 L498,330", "edukacija-0": "M571,395 L571,426 L577,432 L617,448 L631,449 L648,432 L728,334 L728,325 L716,314 L561,225 L490,154 L490,146 L504,132 L512,120 L516,120 L546,92 L590,71 L599,71 L602,74 L613,114 L622,124", "edukacija-1": "M571,395 L571,426 L577,432 L617,448 L631,449 L648,432 L808,236 L878,154 L884,136 L889,89 L896,82 L1035,80 L1038,77 L1038,64 L1040,62", "edukacija-2": "M571,395 L571,426 L577,432 L617,448 L631,449 L648,432 L716,348 L733,331 L744,331 L887,423 L906,425 L971,388 L1011,362 L1027,355 L1040,346 L1046,346 L1056,336 L1056,321 L1015,279 L1040,252", "edukacija-3": "M571,395 L571,426 L577,432 L620,448 L641,464 L641,468 L634,476 L634,482 L652,500 L640,512", "edukacija-4": "M571,395 L571,426 L577,432 L617,448 L631,449 L648,432 L716,348 L733,331 L748,333 L877,415 L901,437 L905,447 L931,484 L970,550 L970,558 L961,566 L944,573 L934,573 L918,586 L918,592 L930,604", "edukacija-5": "M571,395 L571,426 L577,432 L617,448 L631,449 L648,432 L716,348 L733,331 L744,331 L877,415 L901,437 L905,447 L931,484 L971,551 L1019,642 L1019,653 L1014,657 L1014,664 L990,686", "parduotuves-0": "M571,395 L571,426 L577,432 L617,448 L631,449 L648,432 L728,334 L728,325 L719,316 L651,278 L638,266 L638,261 L644,259 L657,244", "parduotuves-1": "M571,395 L571,426 L577,432 L617,448 L631,449 L648,432 L808,236 L878,154 L884,136 L886,113 L893,106 L905,110", "parduotuves-2": "M571,395 L571,426 L577,432 L617,448 L631,449 L648,432 L740,321 L758,296", "parduotuves-3": "M571,395 L571,426 L579,433 L610,444 L621,453 L621,462 L607,476 L602,476 L596,470", "parduotuves-4": "M571,395 L571,426 L579,433 L621,449 L631,449 L683,391 L690,392 L716,418"};
