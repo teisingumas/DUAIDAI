@@ -28,7 +28,7 @@ function da_bootstrap_users(): void
 /* Vienkartinė pirmo slaptažodžio nuoroda (/crm/?a=setup&t=…), jei laiškai iš serverio neišeina.
    Čia saugoma tik nuorodos rakto SHA-256 maiša – pats raktas repozitorijoje nėra.
    Veikia tik kol pagrindinis administratorius dar nėra nusistatęs slaptažodžio. */
-const DA_SETUP_HASH = '484540ada448787b7e953afe6059f198fb3a31951cfbbb7930d3ab32fc83662a';
+const DA_SETUP_HASH = 'f4d7386d69099d4444a4141e63d51856a6a00e9110267af69f7164b2c67aa85a';
 /* ar pagrindinis administratorius dar nėra nusistatęs slaptažodžio */
 function da_first_run(): bool { foreach (da_users() as $u) if (!empty($u['initial'])) return true; return false; }
 
