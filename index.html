@@ -345,6 +345,71 @@ table.rooms tr.tot td{border-bottom:0;font-weight:800;padding-top:12px}
   .pt-s{transform:scale(1.7)}
   .pt.hl .pt-s{transform:scale(2.5)}
 }
+/* gallery */
+nav.main a.cur{opacity:1;text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:7px}
+@media (min-width:981px){ nav.main a.cur{text-decoration-color:var(--accent)} nav.main a.cur.act{text-decoration-color:currentColor} }
+.gal .page{min-height:0;padding-bottom:72px}
+.gal-in{max-width:1500px;margin:0 auto;padding:clamp(28px,5vh,56px) clamp(0px,1.6vw,28px) 0}
+.gal-hd h1{margin:14px 0 0;font-size:clamp(48px,7.4vw,112px);font-weight:800;letter-spacing:-.035em;line-height:.92;text-transform:uppercase}
+.gal-hd .eyebrow{color:var(--accent)}
+.gal-hd p{margin:18px 0 0;font-size:clamp(16px,1.4vw,20px);font-weight:500;color:var(--muted)}
+.gal-bar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px;margin:clamp(28px,4vh,44px) 0 28px;padding-bottom:24px;border-bottom:1px solid var(--line)}
+.gal-f{display:flex;flex-wrap:wrap;gap:8px}
+.gal-f .pill{box-shadow:none;background:transparent;border:1px solid var(--line);text-transform:none;letter-spacing:.02em;font-size:13px;font-weight:600}
+.gal-f .pill:hover{background:var(--surface)}
+.gal-f .pill[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--white)}
+.gal-n{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-variant-numeric:tabular-nums}
+.gal-grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:12px}
+.gt{grid-column:span var(--c,4);height:var(--h,min(26vw,390px));position:relative;overflow:hidden;border:0;padding:0;border-radius:6px;background:var(--line);cursor:zoom-in;animation:liIn .45s ease both}
+.gt img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .8s cubic-bezier(.2,.7,.2,1)}
+.gt:hover img, .gt:focus-visible img{transform:scale(1.04)}
+.gt::after{content:"";position:absolute;inset:auto 0 0;height:45%;background:linear-gradient(180deg,rgba(10,16,13,0),rgba(10,16,13,.5));pointer-events:none}
+.gt span{position:absolute;z-index:1;left:14px;bottom:12px;color:var(--white);font-size:12px;font-weight:600;letter-spacing:.02em;text-align:left}
+.gal-grid.flat .gt{--c:4!important;--h:min(22vw,330px)!important}
+.eiga{margin-top:clamp(56px,8vh,96px);padding-top:32px;border-top:1px solid var(--line)}
+.eiga h2{margin:0 0 24px;font-size:13px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:var(--accent)}
+.eiga ol{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:20px}
+.eiga li{display:grid;gap:12px}
+.eiga .gt{--h:min(14vw,210px)!important;grid-column:auto;width:100%}
+.eiga .gt span, .eiga .gt::after{display:none}
+.eiga b{display:block;font-size:15px;font-weight:800;font-variant-numeric:tabular-nums}
+.eiga small{display:block;font-size:13px;color:var(--muted);margin-top:2px}
+.eiga i{position:relative;display:block;height:10px}
+.eiga i::before{content:"";position:absolute;left:0;right:-20px;top:4px;height:2px;background:var(--line)}
+.eiga li:last-child i::before{right:0}
+.eiga i::after{content:"";position:absolute;left:0;top:0;width:10px;height:10px;border-radius:50%;background:var(--paper);border:2px solid var(--line);box-sizing:border-box}
+.eiga li.done i::before{background:var(--accent)}
+.eiga li.done i::after{background:var(--accent);border-color:var(--accent)}
+.gal-cta{background:var(--accent);color:var(--white);display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:20px;padding-block:44px;
+  padding-left:max(56px, env(safe-area-inset-left,0px));padding-right:max(56px, env(safe-area-inset-right,0px))}
+.gal-cta p{margin:0;font-size:clamp(22px,2.4vw,34px);font-weight:600;letter-spacing:-.01em}
+.gal-cta a{display:inline-flex;align-items:center;gap:10px;height:50px;padding:0 26px;border-radius:999px;background:var(--white);color:var(--accent);font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;text-decoration:none;transition:transform .2s}
+.gal-cta a:hover{transform:translateX(3px)}
+.gal .foot{border-top:1px solid rgba(255,255,255,.14)}
+.lb{position:fixed;inset:0;z-index:85;background:rgba(10,16,13,.94);display:grid;grid-template-rows:auto minmax(0,1fr);color:var(--white);animation:fadeIn .25s ease both}
+.lb-top{display:flex;justify-content:space-between;align-items:center;padding:12px max(16px, env(safe-area-inset-right,0px)) 0 max(24px, env(safe-area-inset-left,0px));font-size:12px;font-weight:700;letter-spacing:.16em;font-variant-numeric:tabular-nums}
+.lb figure{margin:0;display:grid;grid-template-rows:minmax(0,1fr) auto;justify-items:center;align-items:center;min-height:0;padding:12px 72px 0}
+.lb img{max-width:100%;max-height:100%;object-fit:contain;border-radius:4px;animation:fadeIn .3s ease both}
+.lb figcaption{text-align:center;padding:4px 24px calc(24px + env(safe-area-inset-bottom,0px));font-size:14px;font-weight:600}
+.lb button{border:0;background:transparent;color:inherit;cursor:pointer;width:48px;height:48px;border-radius:50%;font-size:28px;line-height:1}
+.lb button:hover{background:rgba(255,255,255,.12)}
+.lb-nav{position:absolute;top:50%;transform:translateY(-50%)}
+.lb-nav.p{left:12px} .lb-nav.n{right:12px}
+@media (max-width:980px){
+  .gal .page{padding-left:max(20px, env(safe-area-inset-left,0px));padding-right:max(20px, env(safe-area-inset-right,0px))}
+  .gal-grid{gap:8px}
+  .gt, .gal-grid.flat .gt{--c:6!important;--h:44vw!important}
+  .gt.w{--c:12!important;--h:56vw!important}
+  .eiga ol{grid-template-columns:repeat(2,minmax(0,1fr));gap:24px 16px}
+  .eiga .gt{--h:30vw!important}
+  .eiga li:nth-child(2n) i::before{right:0}
+  .gal-cta{padding-left:max(24px, env(safe-area-inset-left,0px));padding-right:max(24px, env(safe-area-inset-right,0px))}
+  .lb figure{padding:12px 8px}
+  .lb-nav{top:auto;bottom:calc(10px + env(safe-area-inset-bottom,0px));transform:none}
+}
+@media (max-width:560px){
+  .gt, .gal-grid.flat .gt{--c:12!important;--h:62vw!important}
+}
 .toast{position:fixed;z-index:90;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translate(-50%,10px);background:var(--ink);color:var(--white);padding:12px 20px;border-radius:999px;font-size:13px;font-weight:600;opacity:0;pointer-events:none;transition:opacity .25s, transform .25s;max-width:calc(100% - 32px);text-align:center}
 .toast.on{opacity:1;transform:translate(-50%,0)}
 @media (prefers-reduced-motion:reduce){*{transition-duration:.01ms!important;animation-duration:.01ms!important}}
@@ -365,7 +430,7 @@ table.rooms tr.tot td{border-bottom:0;font-weight:800;padding-top:12px}
     <a class="cta" href="#rinkis">Rinkis butą</a>
     <a href="#vieta">Vieta</a>
     <a href="#pradzia" data-soon="Apie projektą">Apie projektą</a>
-    <a href="#pradzia" data-soon="Galerija">Galerija</a>
+    <a href="#galerija" id="navGal">Galerija</a>
     <a href="#pradzia" data-soon="Kontaktai">Kontaktai</a>
   </nav>
   <button class="burger" id="burger" aria-label="Meniu" aria-expanded="false"><span></span></button>
@@ -488,6 +553,34 @@ table.rooms tr.tot td{border-bottom:0;font-weight:800;padding-top:12px}
   </div></div>
 </section>
 
+<!-- 5. GALLERY -->
+<section class="view gal" data-view="galerija">
+  <div class="page"><div class="gal-in">
+    <div class="gal-hd">
+      <div class="eyebrow">Galerija · Du Aidai</div>
+      <h1>Galerija</h1>
+      <p>Architektūra, interjerai ir kvartalo aplinka Žaliakalnyje.</p>
+    </div>
+    <div class="gal-bar">
+      <div class="gal-f" id="galF" role="group" aria-label="Nuotraukų kategorijos"></div>
+      <span class="gal-n" id="galN"></span>
+    </div>
+    <div class="gal-grid" id="galGrid"></div>
+    <section class="eiga" aria-labelledby="eigaTitle">
+      <h2 id="eigaTitle">Statybų eiga</h2>
+      <ol id="eigaList"></ol>
+    </section>
+  </div></div>
+  <div class="gal-cta"><p>Patiko? Išsirinkite savo butą</p><a href="#rinkis">Rinkis butą →</a></div>
+  <div id="galFoot"></div>
+</section>
+
+<div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="Nuotraukų peržiūra" hidden>
+  <div class="lb-top"><span id="lbN"></span><button type="button" id="lbX" aria-label="Uždaryti">×</button></div>
+  <figure><img id="lbImg" alt=""><figcaption id="lbCap"></figcaption></figure>
+  <button type="button" class="lb-nav p" id="lbP" aria-label="Ankstesnė nuotrauka">←</button>
+  <button type="button" class="lb-nav n" id="lbNx" aria-label="Kita nuotrauka">→</button>
+</div>
 
 <div class="modal" id="modal" hidden>
   <div class="modal-bg" data-close></div>
@@ -722,6 +815,56 @@ function hl(k,on){
 $("pills").addEventListener("click",e=>{ const b=e.target.closest(".pill"); if(b) showCat(+b.dataset.i); });
 showCat(0);
 
+/* ---------- gallery ---------- */
+// Laikinos nuotraukos (img/galerija/) – pakeisti tikromis vizualizacijomis; c = plotis iš 12 stulpelių, h = eilutės aukštis
+const GH={L:"min(30vw,440px)",M:"min(22vw,330px)",K:"min(26vw,390px)",X:"min(36vw,540px)"};
+const GAL=[
+  {src:"img/hero.webp", cap:"Kvartalas · Vakaro saulė", cat:"eksterjeras", c:6, h:"L"},
+  {src:"img/galerija/svetaine.webp", cap:"Interjeras · Svetainė", cat:"interjeras", c:3, h:"L"},
+  {src:"img/galerija/virtuve.webp", cap:"Interjeras · Virtuvė", cat:"interjeras", c:3, h:"L"},
+  {src:"img/galerija/miegamasis.webp", cap:"Interjeras · Miegamasis", cat:"interjeras", c:3, h:"M"},
+  {src:"img/galerija/vonia.webp", cap:"Interjeras · Vonios kambarys", cat:"interjeras", c:3, h:"M"},
+  {src:"img/galerija/balkonas.webp", cap:"Eksterjeras · Balkonas", cat:"eksterjeras", c:6, h:"M"},
+  {src:"img/galerija/kiemas.webp", cap:"Aplinka · Vidinis kiemas", cat:"aplinka", c:4, h:"K"},
+  {src:"img/galerija/vakaras.webp", cap:"Namas B · Vakare", cat:"eksterjeras", c:4, h:"K"},
+  {src:"img/galerija/kvartalas.webp", cap:"Aplinka · Kvartalas iš viršaus", cat:"aplinka", c:4, h:"K"},
+  {src:"img/namai.webp", cap:"Namai A ir B", cat:"eksterjeras", c:12, h:"X"},
+];
+const EIGA=[
+  {src:"img/galerija/eiga-1.webp", d:"2026 03", t:"Pamatai", done:true},
+  {src:"img/galerija/eiga-2.webp", d:"2026 06", t:"Konstrukcijos", done:true},
+  {src:"img/galerija/eiga-3.webp", d:"2026 09", t:"Fasadas", done:true},
+  {src:"img/galerija/eiga-4.webp", d:"2027 Q3", t:"Statybų pabaiga", done:false},
+];
+const GCATS=[["visos","Visos"],["eksterjeras","Eksterjeras"],["interjeras","Interjeras"],["aplinka","Aplinka"],["eiga","Statybų eiga"]];
+const EIGA_G=EIGA.map(e=>({src:e.src, cap:"Statybų eiga · "+e.d+" · "+e.t, cat:"eiga"}));
+const nPhotos=n=>n+" "+(n%10===1&&n%100!==11?"nuotrauka":(n%10===0||(n%100>10&&n%100<20))?"nuotraukų":"nuotraukos");
+let galSet=[];
+const tile=(g,i,set)=>`<button type="button" class="gt${g.c===12?" w":""}" data-i="${i}" data-set="${set}" style="--c:${g.c||4};--h:${GH[g.h]||GH.K}" aria-label="${g.cap} – padidinti"><img src="${g.src}" alt="" loading="lazy"><span>${g.cap}</span></button>`;
+function showGal(cat){
+  galSet=cat==="visos"?GAL:cat==="eiga"?EIGA_G:GAL.filter(g=>g.cat===cat);
+  $("galF").querySelectorAll(".pill").forEach(b=>b.setAttribute("aria-pressed",b.dataset.c===cat));
+  $("galGrid").classList.toggle("flat",cat!=="visos");
+  $("galGrid").innerHTML=galSet.map((g,i)=>tile(g,i,"g")).join("");
+  $("galN").textContent=nPhotos(cat==="visos"?GAL.length+EIGA.length:galSet.length);
+}
+$("galF").innerHTML=GCATS.map(([k,t])=>`<button type="button" class="pill" data-c="${k}">${t}</button>`).join("");
+$("galF").addEventListener("click",e=>{ const b=e.target.closest(".pill"); if(b) showGal(b.dataset.c); });
+$("eigaList").innerHTML=EIGA.map((e,i)=>`<li class="${e.done?"done":""}">${tile(EIGA_G[i],i,"e")}<div><b>${e.d}</b><small>${e.t}</small></div><i aria-hidden="true"></i></li>`).join("");
+$("galFoot").replaceWith(document.querySelector(".foot").cloneNode(true));
+showGal("visos");
+
+const lb=$("lb"); let lbSet=[], lbI=0, lbFocus=null;
+function lbShow(i){ lbI=(i+lbSet.length)%lbSet.length; const g=lbSet[lbI]; $("lbImg").src=g.src; $("lbImg").alt=g.cap; $("lbCap").textContent=g.cap; $("lbN").textContent=(lbI+1)+" / "+lbSet.length; }
+function lbOpen(set,i){ lbSet=set; lbFocus=document.activeElement; lbShow(i); lb.hidden=false; document.body.classList.add("locked"); $("lbX").focus(); }
+function lbClose(){ lb.hidden=true; document.body.classList.remove("locked"); lbFocus&&lbFocus.focus(); }
+document.querySelector(".gal").addEventListener("click",e=>{ const t=e.target.closest(".gt"); if(t) lbOpen(t.dataset.set==="e"?EIGA_G:galSet,+t.dataset.i); });
+$("lbX").addEventListener("click",lbClose);
+$("lbP").addEventListener("click",()=>lbShow(lbI-1));
+$("lbNx").addEventListener("click",()=>lbShow(lbI+1));
+lb.addEventListener("click",e=>{ if(e.target===lb||e.target.tagName==="FIGURE") lbClose(); });
+addEventListener("keydown",e=>{ if(lb.hidden) return; if(e.key==="Escape") lbClose(); else if(e.key==="ArrowLeft") lbShow(lbI-1); else if(e.key==="ArrowRight") lbShow(lbI+1); });
+
 /* ---------- router ---------- */
 const hdr=$("hdr");
 function route(){
@@ -729,10 +872,12 @@ function route(){
   let view="pradzia", m, toLoc=false;
   if(h==="vieta") toLoc=true;
   else if(h==="rinkis") view="rinkis";
+  else if(h==="galerija") view="galerija";
   else if((m=h.match(/^aukstas-([AB])-([2-5])$/))){ view="aukstas"; renderFloor(m[1],+m[2]); }
   else if((m=h.match(/^butas-([AB][2-5]\d\d)$/)) && APTS[m[1]]){ view="butas"; renderApt(APTS[m[1]]); }
   document.querySelectorAll(".view").forEach(v=>v.classList.toggle("on",v.dataset.view===view));
-  curView=view; document.body.dataset.view=view; hdr.classList.toggle("ink", view==="aukstas"||view==="butas");
+  curView=view; document.body.dataset.view=view; hdr.classList.toggle("ink", view==="aukstas"||view==="butas"||view==="galerija");
+  $("navGal").classList.toggle("cur", view==="galerija");
   document.body.classList.remove("menu"); $("burger").setAttribute("aria-expanded","false");
   hideTip();
   if(toLoc){ requestAnimationFrame(()=>$("vieta").scrollIntoView({behavior:reduceM?"auto":"smooth"})); }
