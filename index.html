@@ -232,9 +232,12 @@ table.rooms tr.tot td{border-bottom:0;font-weight:800;padding-top:12px}
 }
 
 /* location */
-.loc{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);background:var(--paper)}
-.map{position:relative;min-height:min(86vh,820px);overflow:hidden;background:#f3f1ec}
-.map svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+/* vieta: žemėlapis per visą bloką, antraštė viršuje kairėje, kortelė dešinėje, laiko kortelės apačioje */
+.loc{--cw:min(440px,36vw);position:relative;min-height:clamp(760px,94vh,920px);background:#f3f1ec;overflow:hidden}
+.map{position:absolute;left:0;top:clamp(150px,20vh,200px);bottom:clamp(96px,13vh,124px);right:calc(var(--cw) + 56px - 140px);
+  -webkit-mask-image:linear-gradient(90deg,#000 82%,transparent),linear-gradient(180deg,transparent,#000 14%,#000 84%,transparent);-webkit-mask-composite:source-in;
+  mask-image:linear-gradient(90deg,#000 82%,transparent),linear-gradient(180deg,transparent,#000 14%,#000 84%,transparent);mask-composite:intersect}
+.map svg{position:absolute;inset:0;width:100%;height:100%;display:block;overflow:visible}
 .m-road{fill:#fbfaf7;stroke:rgba(31,77,58,.28);stroke-width:1;vector-effect:non-scaling-stroke}
 .m-park{fill:url(#dots)}
 .m-campus{fill:rgba(31,77,58,.07)}
@@ -267,38 +270,51 @@ table.rooms tr.tot td{border-bottom:0;font-weight:800;padding-top:12px}
 .pin-ring{fill:none;stroke:var(--white);stroke-width:2;opacity:0;transition:opacity .2s;pointer-events:none}
 .pinA:hover .pin-ring,.pinA:focus .pin-ring{opacity:1}
 .pinA:focus{outline:none}
-.pills{display:flex;flex-wrap:wrap;gap:8px}
-.pill{height:42px;padding:0 16px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--ink);font-size:13px;font-weight:600;letter-spacing:.02em;cursor:pointer;transition:background .25s, color .25s, border-color .25s}
-.pill:hover{background:rgba(31,77,58,.06);border-color:rgba(31,77,58,.45);color:var(--accent)}
-.pill[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--white)}
-.loc-txt{padding-block:clamp(88px,12vh,128px) clamp(56px,8vh,88px);padding-left:clamp(40px,4.5vw,72px);padding-right:max(56px, env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:22px;min-width:0}
-.loc-txt .eyebrow{color:var(--accent)}
-.loc-txt h2{margin:10px 0 0;font-size:clamp(34px,3.6vw,56px);font-weight:800;letter-spacing:-.03em;line-height:.95;text-transform:uppercase;color:var(--ink);text-wrap:balance}
-.loc-txt p{margin:4px 0 0;max-width:44ch;min-height:3.1em;font-size:16px;font-weight:500;line-height:1.55;color:var(--muted);text-wrap:pretty}
-/* sąrašas kaip tvarkaraštis: taškas · vieta · laikas */
-.plist{list-style:none;margin:6px 0 0;padding:0;display:grid;border-top:1px solid var(--line)}
-.plist li{display:grid;grid-template-columns:28px minmax(0,1fr) auto;gap:18px;align-items:center;padding:15px 8px;border-radius:0;border-bottom:1px solid var(--line);cursor:default;animation:liIn .45s ease both;transition:background .2s}
+.loc-head{position:absolute;z-index:2;left:max(56px, env(safe-area-inset-left,0px));top:clamp(88px,12vh,120px);right:calc(var(--cw) + 112px)}
+.loc-head .eyebrow{color:var(--accent)}
+.loc-head h2{margin:10px 0 0;font-size:clamp(40px,4.6vw,72px);font-weight:800;letter-spacing:-.035em;line-height:.92;text-transform:uppercase;color:var(--ink)}
+.loc-card{position:absolute;z-index:3;right:max(56px, env(safe-area-inset-right,0px));top:50%;transform:translateY(-50%);width:var(--cw);display:flex;flex-direction:column;gap:18px;
+  padding:22px 22px 18px;border-radius:24px;background:var(--surface);box-shadow:0 30px 80px rgba(23,32,27,.14), 0 2px 8px rgba(23,32,27,.05)}
+.pills{display:flex;gap:4px;padding:4px;border-radius:999px;background:var(--paper)}
+.pill{flex:1 1 auto;height:40px;padding:0 12px;border-radius:999px;border:0;background:transparent;color:var(--ink);font-size:13px;font-weight:600;letter-spacing:.01em;cursor:pointer;white-space:nowrap;transition:background .25s, color .25s}
+.pill:hover{background:rgba(31,77,58,.08);color:var(--accent)}
+.pill[aria-pressed="true"]{background:var(--accent);color:var(--white);box-shadow:0 4px 14px rgba(31,77,58,.28)}
+#locIntro{margin:2px 6px 0;min-height:3.1em;font-size:15px;font-weight:500;line-height:1.55;color:#3c4640;text-wrap:pretty}
+.plist{list-style:none;margin:0;padding:0;display:grid}
+.plist li{display:grid;grid-template-columns:28px minmax(0,1fr) auto;gap:14px;align-items:center;padding:12px 6px;border-top:1px solid var(--line);cursor:default;border-radius:12px;animation:liIn .45s ease both;transition:background .2s}
+.plist li:first-child{border-top:0}
 @keyframes liIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
-.plist li.hl{background:rgba(31,77,58,.05)}
+.plist li.hl{background:rgba(31,77,58,.06)}
+.plist li.hl, .plist li.hl+li{border-top-color:transparent}
 .plist .n{width:28px;height:28px;border-radius:50%;background:var(--ink);color:var(--white);display:grid;place-items:center;font-size:12px;font-weight:800;transition:background .2s}
 .plist li.hl .n{background:var(--accent)}
-.plist b{display:block;font-size:16px;font-weight:600;line-height:1.35}
-.loc-note{margin:0!important;min-height:0!important;font-size:13px!important;color:var(--muted)}
-.plist span.d{display:block;font-size:13px;color:var(--muted);margin-top:2px}
-.plist .t{text-align:right;white-space:nowrap;line-height:1.1}
-.plist .t b{font-size:22px;font-weight:800;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
-.plist .t b small{font-size:12px;font-weight:700;margin-left:3px;letter-spacing:0}
-.plist .t span{display:block;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:3px}
-.plist li.hl .t b{color:var(--accent)}
+.plist b{display:block;font-size:15px;font-weight:600;line-height:1.3}
+.plist span.d{display:block;font-size:12px;color:var(--muted);margin-top:2px}
+.plist .t{display:grid;grid-template-columns:auto auto;align-items:center;column-gap:6px;text-align:left;white-space:nowrap}
+.plist .t b{grid-row:span 2;font-size:28px;font-weight:700;letter-spacing:-.03em;line-height:1;color:var(--accent);font-variant-numeric:tabular-nums}
+.plist .t small{font-size:12px;font-weight:700;line-height:1.1;color:var(--ink)}
+.plist .t span{font-size:11px;line-height:1.1;color:var(--muted)}
+.loc-note{margin:0 6px;font-size:12px;color:var(--muted)}
+.loc-stats{position:absolute;z-index:2;left:max(56px, env(safe-area-inset-left,0px));bottom:clamp(32px,5vh,48px);display:flex;gap:12px}
+.loc-stat{display:flex;align-items:center;gap:14px;padding:14px 20px 14px 16px;border-radius:16px;background:rgba(255,255,255,.86);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:0 10px 30px rgba(23,32,27,.08)}
+.loc-stat svg{width:26px;height:26px;flex:none;fill:none;stroke:var(--accent);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.loc-stat b{font-size:28px;font-weight:700;letter-spacing:-.03em;line-height:1;font-variant-numeric:tabular-nums}
+.loc-stat b small{font-size:13px;font-weight:700;letter-spacing:0;margin-left:4px}
+.loc-stat span{display:block;font-size:12px;color:var(--muted);margin-top:3px}
+@media (max-width:1180px){ .loc-stats .loc-stat:nth-child(3){display:none} }
 @media (max-width:980px){
-  .loc{grid-template-columns:1fr}
-  .map{min-height:auto;aspect-ratio:1076/743;max-width:100%}
-  .map{order:2} .loc-txt{order:1;padding-left:max(24px, env(safe-area-inset-left,0px));padding-right:max(24px, env(safe-area-inset-right,0px));padding-block:96px 32px}
-  .pills{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin-right:-24px;padding-right:24px}
+  .loc{min-height:0;display:flex;flex-direction:column;padding:96px 0 40px}
+  .loc-head{position:static;order:1;padding:0 max(24px, env(safe-area-inset-left,0px))}
+  .map{position:relative;order:2;inset:auto;margin-top:24px;aspect-ratio:1076/743;-webkit-mask-image:none;mask-image:none}
+  .loc-stats{position:static;order:3;margin:-28px 0 0;padding:0 24px;overflow-x:auto;scrollbar-width:none}
+  .loc-stats::-webkit-scrollbar{display:none}
+  .loc-stats .loc-stat:nth-child(3){display:flex}
+  .loc-stat{flex:none;padding:10px 16px 10px 12px}
+  .loc-stat b{font-size:22px}
+  .loc-card{position:static;order:4;transform:none;width:auto;margin:20px 16px 0;padding:16px 14px 14px}
+  .pills{overflow-x:auto;scrollbar-width:none}
   .pills::-webkit-scrollbar{display:none}
   .pill{flex:none}
-  .map{display:flex;flex-direction:column;aspect-ratio:auto}
-  .map svg{position:static;aspect-ratio:1076/743;height:auto}
 }
 
 .foot{background:var(--accent);color:var(--white);padding-block:56px calc(40px + env(safe-area-inset-bottom,0px));padding-left:max(56px, env(safe-area-inset-left,0px));padding-right:max(56px, env(safe-area-inset-right,0px))}
@@ -397,7 +413,7 @@ table.rooms tr.tot td{border-bottom:0;font-weight:800;padding-top:12px}
   </div>
   <section class="loc" id="vieta" aria-labelledby="locTitle">
     <div class="map">
-      <svg viewBox="0 0 1076 743" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Du Aidai vieta Kauno Žaliakalnyje">
+      <svg viewBox="130 20 950 700" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Du Aidai vieta Kauno Žaliakalnyje">
         <defs><pattern id="dots" width="7" height="7" patternUnits="userSpaceOnUse"><rect width="7" height="7" fill="#e2e6dc"/><circle cx="2" cy="2" r="1.1" fill="#1f4d3a" fill-opacity=".55"/><circle cx="5.5" cy="5.5" r="1.1" fill="#1f4d3a" fill-opacity=".4"/></pattern></defs>
         <path class="m-campus" d="M1075,629 1067,628 1055,606 1048,606 1023,621 1006,620 982,574 964,574 962,572 962,558 969,556 969,550 959,530 943,505 930,504 912,471 891,442 876,444 817,465 816,469 802,469 699,499 681,499 647,469 637,469 636,461 627,460 557,543 555,555 545,557 497,614 497,620 510,631 525,634 525,645 530,647 532,658 533,689 553,689 560,694 568,696 591,694 734,649 737,637 760,635 787,636 793,630 835,617 852,617 853,623 878,632 889,632 894,635 921,635 922,655 934,677 941,678 944,681 944,708 925,724 922,734 913,734 903,739 903,742 1075,742ZM531,625 543,616 557,616 561,628 566,630 566,644 556,645 553,648 533,646Z"/>
         <path class="m-park" d="M940,698 935,694 934,682 926,678 926,672 913,648 913,641 896,640 842,621 841,619 833,619 805,628 803,635 794,640 747,640 739,649 587,696 566,697 551,690 527,691 526,678 521,677 512,685 483,694 470,695 454,701 440,703 429,708 426,712 427,742 909,742 909,735 919,730 921,722 939,708ZM983,378 977,382 977,387 993,406 996,413 996,442 991,457 991,465 1019,512 1019,527 1014,546 987,556 985,567 1015,622 1019,622 1043,608 1057,608 1071,632 1075,635 1075,444 1067,444 1048,438 1037,427 1034,420 1023,407 1005,399 988,378ZM107,178 91,265 91,273 94,276 96,290 109,305 151,339 157,339 158,344 228,402 241,418 260,432 267,433 343,400 364,396 391,395 466,361 464,350 450,322 450,314 432,292 432,287 409,242 379,212 309,177 272,149 268,149 229,188 207,188 196,180 174,177Z"/>
@@ -425,8 +441,9 @@ table.rooms tr.tot td{border-bottom:0;font-weight:800;padding-top:12px}
         <g id="ptG"></g>
       </svg>
     </div>
-    <div class="loc-txt">
-      <div><div class="eyebrow">Vieta · Žaliakalnis, Kaunas</div><h2 id="locTitle">Viskas šalia namų</h2></div>
+    <div class="loc-head"><div class="eyebrow">Vieta · Žaliakalnis, Kaunas</div><h2 id="locTitle">Viskas šalia namų</h2></div>
+    <div class="loc-stats" id="locStats"></div>
+    <div class="loc-card">
       <div class="pills" role="group" aria-label="Taškų kategorijos" id="pills"></div>
       <p id="locIntro"></p>
       <ol class="plist" id="plist"></ol>
@@ -711,7 +728,7 @@ function showCat(i){ tapK=-1;
   },old.length?200:0);
   plist.innerHTML=c.pts.map((p,k)=>{ const m=p[1].match(/^(\d+) min (.+)$/);
     return `<li data-k="${k}" style="animation-delay:${k*50}ms"><span class="n">${k+1}</span><div><b>${p[0]}</b>${m?"":`<span class="d">${p[1]}</span>`}</div>`+
-      (m?`<div class="t"><b>${m[1]}<small>min</small></b><span>${m[2]}</span></div>`:"<div></div>")+`</li>`; }).join("");
+      (m?`<div class="t"><b>${m[1]}</b><small>min</small><span>${m[2]}</span></div>`:"<div></div>")+`</li>`; }).join("");
   plist.querySelectorAll("li").forEach(li=>{ li.addEventListener("mouseenter",()=>{ if(!touchMode) hl(+li.dataset.k,true); }); li.addEventListener("mouseleave",()=>{ if(!touchMode) hl(+li.dataset.k,false); }); li.addEventListener("click",()=>{ if(touchMode){ tapHl(+li.dataset.k); $("vieta").querySelector(".map").scrollIntoView({behavior:"smooth",block:"center"}); } }); });
 }
 const ROUTES={"transportas-0": "M571,395 L571,426 L577,432 L617,448 L631,449 L648,432 L685,386 L685,378 L680,372", "transportas-1": "M571,395 L571,426 L577,432 L617,448 L631,449 L648,432 L728,334 L728,325 L719,316 L595,245 L585,235 L585,232", "transportas-2": "M571,395 L571,426 L579,433 L615,447 L621,453 L621,463 L508,595 L491,612 L479,612 L330,486", "transportas-3": "M571,395 L571,426 L577,432 L617,448 L631,449 L648,432 L716,348 L733,331 L748,333 L790,361 L800,361 L808,352", "transportas-4": "M571,395 L571,426 L579,433 L615,447 L621,453 L621,463 L533,563 L526,562 L520,556", "transportas-5": "M571,395 L571,426 L577,432 L617,448 L631,449 L648,432 L716,348 L733,331 L744,331 L877,415 L901,437 L915,462 L924,471 L930,468", "pramogos-0": "M571,395 L571,426 L577,432 L617,448 L631,449 L648,432 L716,348 L733,331 L744,331 L885,421 L901,437 L916,464 L931,480 L950,477 L956,483 L977,518 L987,518 L993,514 L993,489 L1030,452", "pramogos-1": "M571,395 L571,426 L577,432 L621,449 L632,449 L640,441 L650,442", "pramogos-2": "M571,395 L571,426 L579,433 L615,447 L621,453 L621,463 L493,612 L493,623 L509,639 L520,639 L530,631 L541,631 L545,636", "pramogos-3": "M571,395 L571,426 L577,432 L629,453 L692,504 L692,636", "pramogos-4": "M571,395 L571,426 L579,433 L615,447 L621,453 L621,463 L508,595 L491,612 L479,612 L271,436 L263,436 L257,442 L158,476 L148,482 L148,488 L161,521 L161,531 L190,560", "pramogos-5": "M571,395 L571,418 L565,424 L554,424 L542,418 L477,366 L468,357 L463,345 L463,335 L482,315 L498,330", "edukacija-0": "M571,395 L571,426 L577,432 L617,448 L631,449 L648,432 L728,334 L728,325 L716,314 L561,225 L490,154 L490,146 L504,132 L512,120 L516,120 L546,92 L590,71 L599,71 L602,74 L613,114 L622,124", "edukacija-1": "M571,395 L571,426 L577,432 L617,448 L631,449 L648,432 L808,236 L878,154 L884,136 L889,89 L896,82 L1035,80 L1038,77 L1038,64 L1040,62", "edukacija-2": "M571,395 L571,426 L577,432 L617,448 L631,449 L648,432 L716,348 L733,331 L744,331 L887,423 L906,425 L971,388 L1011,362 L1027,355 L1040,346 L1046,346 L1056,336 L1056,321 L1015,279 L1040,252", "edukacija-3": "M571,395 L571,426 L577,432 L620,448 L641,464 L641,468 L634,476 L634,482 L652,500 L640,512", "edukacija-4": "M571,395 L571,426 L577,432 L617,448 L631,449 L648,432 L716,348 L733,331 L748,333 L877,415 L901,437 L905,447 L931,484 L970,550 L970,558 L961,566 L944,573 L934,573 L918,586 L918,592 L930,604", "edukacija-5": "M571,395 L571,426 L577,432 L617,448 L631,449 L648,432 L716,348 L733,331 L744,331 L877,415 L901,437 L905,447 L931,484 L971,551 L1019,642 L1019,653 L1014,657 L1014,664 L990,686", "parduotuves-0": "M571,395 L571,426 L577,432 L617,448 L631,449 L648,432 L728,334 L728,325 L719,316 L651,278 L638,266 L638,261 L644,259 L657,244", "parduotuves-1": "M571,395 L571,426 L577,432 L617,448 L631,449 L648,432 L808,236 L878,154 L884,136 L886,113 L893,106 L905,110", "parduotuves-2": "M571,395 L571,426 L577,432 L617,448 L631,449 L648,432 L740,321 L758,296", "parduotuves-3": "M571,395 L571,426 L579,433 L610,444 L621,453 L621,462 L607,476 L602,476 L596,470", "parduotuves-4": "M571,395 L571,426 L579,433 L621,449 L631,449 L683,391 L690,392 L716,418"};
@@ -732,6 +749,12 @@ function hl(k,on){
   if(on) requestAnimationFrame(()=>mapTip(k)); else hideTip();
   plist.querySelector(`li[data-k="${k}"]`)?.classList.toggle("hl",on);
 }
+// Trys pagrindiniai atstumai apačioje – imami iš tų pačių CATS duomenų
+const STAT_ICO={bus:'<path d="M6 17V6a3 3 0 0 1 3-3h6a3 3 0 0 1 3 3v11M6 12h12M6 17h12M8 20v-3M16 20v-3"/>',tree:'<path d="M12 21v-6M12 15l-4-3M12 15l4-3M12 3a5 5 0 0 1 5 5 4 4 0 0 1-1 7H8a4 4 0 0 1-1-7 5 5 0 0 1 5-5z"/>',cap:'<path d="M2 9l10-5 10 5-10 5zM6 11v5c2 2 10 2 12 0v-5"/>'};
+$("locStats").innerHTML=[["bus",0,0,"iki stotelės"],["tree",1,0,"iki parko"],["cap",2,3,"iki KTU"]].map(([ic,c,k,l])=>{
+  const n=(CATS[c].pts[k][1].match(/^(\d+)/)||[])[1];
+  return `<div class="loc-stat"><svg viewBox="0 0 24 24" aria-hidden="true">${STAT_ICO[ic]}</svg><div><b>${n}<small>min</small></b><span>${l}</span></div></div>`;
+}).join("");
 $("pills").addEventListener("click",e=>{ const b=e.target.closest(".pill"); if(b) showCat(+b.dataset.i); });
 showCat(0);
 
