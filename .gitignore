@@ -9,3 +9,7 @@
 # Sistema
 .DS_Store
 Thumbs.db
+
+# CRM duomenys ir įkelti failai (serveryje, ne git)
+_data/
+uploads/
